@@ -1,0 +1,7 @@
+﻿19:26:03 T:140494198531904   DEBUG: StrongPointerTest: enter StrongPointerTest
+19:26:03 T:140494198531904   DEBUG: StrongPointerTest: enter onFirstRef
+19:26:03 T:140494198531904   DEBUG: StrongPointerTest: test1 getStrongCount = 1
+19:26:03 T:140494198531904   DEBUG: StrongPointerTest: test1 getStrongCount = 2
+19:26:03 T:140494198531904   DEBUG: StrongPointerTest: strong getStrongCount = 2
+19:26:03 T:140494198531904   DEBUG: StrongPointerTest: ========================
+19:26:03 T:140494198531904   DEBUG: StrongPointerTest: strong getWeakCount = 3
