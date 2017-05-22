@@ -4,27 +4,19 @@
  *  Created on: Jan 1, 2017
  *      Author: jeffrey
  */
-#include <sutils/Thread.h>
-#include <sutils/ThreadImpl.h>
-#if defined(TARGET_ANDROID)
-#include <unistd.h>
-#else
-#include <sys/syscall.h>
-#endif
 
-#if !defined(TARGET_WINDOWS)
-# include <pthread.h>
-# include <sched.h>
-# include <sys/resource.h>
-#else
-# include <windows.h>
-# include <stdint.h>
-# include <process.h>
-# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
-#endif
+#include <assert.h>
+#include <errno.h>
+#include <memory.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #if defined(TARGET_POSIX)
 #include <sys/prctl.h>
+#endif
+#if !defined(TARGET_WINDOWS)
+#include <unistd.h>
 #endif
 
 #include <sutils/Errors.h>
@@ -32,30 +24,24 @@
 #include <sutils/ThreadLocal.h>
 #include <sutils/ThreadImpl.h>
 #include <sutils/Logger.h>
+#include <sutils/Thread.h>
 
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
 #define LOG_TAG "CThread"
 
-#ifdef DEBUG_ENABLE
-#define MY_LOGD(fmt, arg...)  //VLOGD(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#define MY_LOGE(fmt, arg...)  //VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#else
-#define MY_LOGD(fmt, arg...)
-#define MY_LOGE(fmt, arg...)  //VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#endif
-
 namespace vmodule {
 
 static ThreadLocal<CThread> currentThread;
+ILogger* CThread::logger = NULL;
+#define MY_LOGD(format,...)  if(logger) logger->Log(VMODULE_LOG_DEBUG,LOG_TAG,format,##__VA_ARGS__)
+#define MY_LOGW(format,...)  if(logger) logger->Log(VMODULE_LOG_WARN,LOG_TAG,format,##__VA_ARGS__)
+#define MY_LOGE(format,...)  if(logger) logger->Log(VMODULE_LOG_ERROR,LOG_TAG,format,##__VA_ARGS__)
 
-CThread::CThread()
-	: m_ThreadId(vthread_id_t(-1))
-	, mStatus(NO_ERROR)
-	, mExitPending(false)
-	, mRunning(false)
-{
+CThread::CThread() :
+		m_ThreadId(vthread_id_t(-1)), mStatus(NO_ERROR), mExitPending(false), mRunning(
+				false) {
 	MY_LOGD("%s", __FUNCTION__);
 }
 
@@ -150,49 +136,45 @@ int CThread::_threadLoop(void* user) {
 }
 
 void CThread::requestExit() {
-    Mutex::Autolock _l(mLock);
-    mExitPending = true;
+	Mutex::Autolock _l(mLock);
+	mExitPending = true;
 }
 
 status_t CThread::requestExitAndWait() {
-    Mutex::Autolock _l(mLock);
-    if (m_ThreadId == CurrentThreadId()) {
-        printf(
-        "Thread (this=%p): don't call waitForExit() from this "
-        "Thread object's thread. It's a guaranteed deadlock!",
-        this);
+	Mutex::Autolock _l(mLock);
+	if (m_ThreadId == GetCurrentThreadId()) {
+		MY_LOGE("Thread (this=%p): don't call waitForExit() from this "
+				"Thread object's thread. It's a guaranteed deadlock!", this);
 
-        return WOULD_BLOCK;
-    }
+		return WOULD_BLOCK;
+	}
 
-    mExitPending = true;
+	mExitPending = true;
 
-    while (mRunning == true) {
-        mExitedCondition.wait(mLock);
-    }
-    // This next line is probably not needed any more, but is being left for
-    // historical reference. Note that each interested party will clear flag.
-    mExitPending = false;
+	while (mRunning == true) {
+		mExitedCondition.wait(mLock);
+	}
+	// This next line is probably not needed any more, but is being left for
+	// historical reference. Note that each interested party will clear flag.
+	mExitPending = false;
 
-    return mStatus;
+	return mStatus;
 }
 
 status_t CThread::join() {
-    Mutex::Autolock _l(mLock);
-    if (m_ThreadId == CurrentThreadId()) {
-    	MY_LOGE(
-        "Thread (this=%p): don't call join() from this "
-        "Thread object's thread. It's a guaranteed deadlock!",
-        this);
+	Mutex::Autolock _l(mLock);
+	if (m_ThreadId == GetCurrentThreadId()) {
+		MY_LOGE("Thread (this=%p): don't call join() from this "
+				"Thread object's thread. It's a guaranteed deadlock!", this);
 
-        return WOULD_BLOCK;
-    }
+		return WOULD_BLOCK;
+	}
 
-    while (mRunning == true) {
-        mExitedCondition.wait(mLock);
-    }
+	while (mRunning == true) {
+		mExitedCondition.wait(mLock);
+	}
 
-    return mStatus;
+	return mStatus;
 }
 
 bool CThread::isRunning() const {
@@ -203,24 +185,23 @@ bool CThread::isRunning() const {
 #if defined(TARGET_ANDROID)
 pid_t CThread::getTid() const
 {
-    // mTid is not defined until the child initializes it, and the caller may need it earlier
-    Mutex::Autolock _l(mLock);
-    pid_t tid;
-    if (mRunning) {
-        pthread_t pthread = (pthread_t)m_ThreadId;
-        tid = pthread_gettid_np(pthread);
-    } else {
-    	MY_LOGE("Thread (this=%p): getTid() is undefined before run()", this);
-        tid = -1;
-    }
-    return tid;
+	// mTid is not defined until the child initializes it, and the caller may need it earlier
+	Mutex::Autolock _l(mLock);
+	pid_t tid;
+	if (mRunning) {
+		pthread_t pthread = (pthread_t)m_ThreadId;
+		tid = pthread_gettid_np(pthread);
+	} else {
+		MY_LOGE("Thread (this=%p): getTid() is undefined before run()", this);
+		tid = -1;
+	}
+	return tid;
 }
 #endif
 
-
 bool CThread::exitPending() const {
-    Mutex::Autolock _l(mLock);
-    return mExitPending;
+	Mutex::Autolock _l(mLock);
+	return mExitPending;
 }
 
 vthread_id_t CThread::ThreadId() const {
@@ -231,27 +212,26 @@ CThread* CThread::GetCurrentThread() {
 	return currentThread.get();
 }
 
-#if !defined(TARGET_WINDOWS)
-vthread_id_t CThread::CurrentThreadId()
-{
-	return (vthread_id_t)pthread_self();
+void CThread::Sleep(unsigned int milliseconds) {
+	if (IsCurrentThread(ThreadId())){
+		MY_LOGW("CurrentThread ");
+		{
+			Mutex::Autolock _l(mLock);
+			mWaitCondition.waitRelative(mLock,milliseconds*1000000);
+		}
+	} else {
+		#if !defined(TARGET_WINDOWS)
+			usleep(milliseconds*1000);
+		#else
+			::Sleep(milliseconds);
+		#endif
+	}
 }
 
-bool CThread::IsCurrentThread(const vthread_id_t tid)
-{
-	return pthread_equal(pthread_self(), (pthread_t)tid);
+void CThread::Wakeup(){
+	Mutex::Autolock _l(mLock);
+	mWaitCondition.broadcast();
 }
-#else
-vthread_id_t CThread::CurrentThreadId()
-{
-	return GetCurrentThreadId();
-}
-
-bool CThread::IsCurrentThread(const vthread_id_t tid)
-{
-	return (GetCurrentThreadId() == tid);
-}
-#endif
 
 }
 

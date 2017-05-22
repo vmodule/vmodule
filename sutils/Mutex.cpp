@@ -10,16 +10,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #if !defined(TARGET_WINDOWS)
-# include <pthread.h>
-# include <sched.h>
-# include <sys/resource.h>
+#include <pthread.h>
+#include <sched.h>
+#include <sys/resource.h>
+#include <unistd.h>
 #else
-# include <windows.h>
-# include <stdint.h>
-# include <process.h>
-# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
+#include <windows.h>
+#include <stdint.h>
+#include <process.h>
+#define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
 #endif
 
 #if defined (TARGET_POSIX) || defined(__POSIX__)
@@ -127,7 +127,7 @@ status_t Mutex::lock()
 void Mutex::unlock()
 {
 	if (!ReleaseMutex((HANDLE) mState))
-	ALOG(LOG_WARN, "thread", "WARNING: bad result from unlocking mutex\n");
+		printf("%s,WARNING: bad result from unlocking mutex\n", __FUNCTION__);
 }
 
 status_t Mutex::tryLock()
@@ -135,8 +135,9 @@ status_t Mutex::tryLock()
 	DWORD dwWaitResult;
 
 	dwWaitResult = WaitForSingleObject((HANDLE) mState, 0);
-	if (dwWaitResult != WAIT_OBJECT_0 && dwWaitResult != WAIT_TIMEOUT)
-	ALOG(LOG_WARN, "thread", "WARNING: bad result from try-locking mutex\n");
+	if (dwWaitResult != WAIT_OBJECT_0
+			&& dwWaitResult != WAIT_TIMEOUT)
+			printf("%s,WARNING: bad result from try-locking mutex\n", __FUNCTION__);
 	return (dwWaitResult == WAIT_OBJECT_0) ? 0 : -1;
 }
 

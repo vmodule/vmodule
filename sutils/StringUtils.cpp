@@ -5,6 +5,10 @@
 #include <algorithm>    // std::count_if
 #include <sutils/StringUtils.h>
 
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
+
 namespace vmodule {
 #define FORMAT_BLOCK_SIZE 512 // # of bytes for initial allocation for printf
 static wchar_t unicode_lowers[] = { (wchar_t) 0x0061, (wchar_t) 0x0062,
@@ -528,18 +532,18 @@ std::string StringUtils::FormatV(const char *fmt, va_list args) {
 		free(cstr);
 #ifndef TARGET_WINDOWS
 		if (nActual > -1) // Exactly what we will need (glibc 2.1)
-			size = nActual + 1;
+		size = nActual + 1;
 		else
-			// Let's try to double the size (glibc 2.0)
-			size *= 2;
+		// Let's try to double the size (glibc 2.0)
+		size *= 2;
 #else  // TARGET_WINDOWS
 		va_copy(argCopy, args);
 		size = _vscprintf(fmt, argCopy);
 		va_end(argCopy);
 		if (size < 0)
-		return "";
+			return "";
 		else
-		size++; // increment for null-termination
+			size++; // increment for null-termination
 #endif // TARGET_WINDOWS
 	}
 
@@ -679,4 +683,14 @@ int StringUtils::asciixdigitvalue(char chr) {
 
 	return -1;
 }
+
+std::wstring StringUtils::StringToWString(const std::string &str) {
+	int nLen = (int) str.length();
+	std::wstring wstr;
+	wstr.resize(nLen, L' ');
+	MultiByteToWideChar(CP_UTF8, 0, (LPCSTR) str.c_str(), nLen,
+			(LPWSTR) wstr.c_str(), nLen);
+	return wstr;
+}
+
 }

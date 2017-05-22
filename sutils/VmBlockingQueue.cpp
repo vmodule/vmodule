@@ -44,4 +44,9 @@ void VmBlockingQueue::EnQueue(MQUEUE_ITEM* item) {
 	waitCond.signal();
 }
 
+void VmBlockingQueue::ExitQueue(){
+	waitCond.broadcast();
+}
+
+
 } /* namespace vmodule */

@@ -10,16 +10,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #if !defined(TARGET_WINDOWS)
-# include <pthread.h>
-# include <sched.h>
-# include <sys/resource.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <sched.h>
+#include <sys/resource.h>
 #else
-# include <windows.h>
-# include <stdint.h>
-# include <process.h>
-# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
+#include <windows.h>
+#include <stdint.h>
+#include <process.h>
+#define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
 #endif
 
 #include <sutils/Condition.h>

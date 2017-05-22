@@ -8,23 +8,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <sutils/LoggerThread.h>
 #include <sutils/Logger.h>
 #include <sutils/ThreadImpl.h>
+#include <sutils/Errors.h>
+#include <sutils/StringUtils.h>
+#include <sutils/AutoBuffer.h>
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
 
 namespace vmodule {
 
 #if !defined(TARGET_WINDOWS)
 LoggerThread::LoggerThread() :
-		exitLoggerThread(false), m_ThreadId(vthread_id_t(-1)), m_file(NULL) {
-	createThread();
+mRunning(false), m_ThreadId(vthread_id_t(-1)), m_file(NULL) {
+	start();
 }
 
 LoggerThread::~LoggerThread() {
 	// TODO Auto-generated destructor stub
-	exitLoggerThread = true;
+	mRunning = false;
 	if (m_file)
-		fclose(m_file);
+	fclose(m_file);
 	m_file = NULL;
 }
 
@@ -32,16 +39,16 @@ bool LoggerThread::OpenLogFile(const std::string &logFilename,
 		const std::string &backupOldLogToFilename) {
 
 	if (m_file)
-		return false; // file was already opened
+	return false; // file was already opened
 
-	(void) remove(backupOldLogToFilename.c_str()); // if it's failed, try to continue
-	(void) rename(logFilename.c_str(), backupOldLogToFilename.c_str()); // if it's failed, try to continue
+	(void) remove(backupOldLogToFilename.c_str());// if it's failed, try to continue
+	(void) rename(logFilename.c_str(), backupOldLogToFilename.c_str());// if it's failed, try to continue
 
 	m_file = (FILEWRAP*) fopen(logFilename.c_str(), "wb");
 	if (!m_file)
-		return false; // error, can't open log file
+	return false;// error, can't open log file
 
-	static const unsigned char BOM[3] = { 0xEF, 0xBB, 0xBF };
+	static const unsigned char BOM[3] = {0xEF, 0xBB, 0xBF};
 	(void) fwrite(BOM, sizeof(BOM), 1, m_file); // write BOM, ignore possible errors
 
 	return true;
@@ -56,11 +63,11 @@ void LoggerThread::CloseLogFile() {
 
 bool LoggerThread::WriteStringToLog(const std::string &logString) {
 	if (!m_file)
-		return false;
+	return false;
 
 	const bool ret =
-			(fwrite(logString.data(), logString.size(), 1, m_file) == 1)
-					&& (fwrite("\n", 1, 1, m_file) == 1);
+	(fwrite(logString.data(), logString.size(), 1, m_file) == 1)
+	&& (fwrite("\n", 1, 1, m_file) == 1);
 	(void) fflush(m_file);
 
 	return ret;
@@ -108,37 +115,100 @@ void LoggerThread::PrintDebugString(const std::string &debugString) {
 	printf("%s\n",debugString.c_str());
 #endif
 }
-
 #else
-LoggerThread::LoggerThread() {
+LoggerThread::LoggerThread() :
+		mRunning(false), m_file(INVALID_HANDLE_VALUE) {
 	// TODO Auto-generated constructor stub
-	createThread();
+	printf("start %s\n", __FUNCTION__);
+	start();
 }
 
 LoggerThread::~LoggerThread() {
 	// TODO Auto-generated destructor stub
+	printf("start %s\n", __FUNCTION__);
+	mRunning = false;
+	if (m_file != INVALID_HANDLE_VALUE)
+		CloseHandle(m_file);
 }
 
 bool LoggerThread::OpenLogFile(const std::string &logFilename,
 		const std::string &backupOldLogToFilename) {
+	if (m_file != INVALID_HANDLE_VALUE)
+		return false; // file was already opened
+	if (logFilename.empty())
+		return false;
+	std::wstring strLogFileW(StringUtils::StringToWString(logFilename));
+	std::wstring strLogFileOldW(
+			StringUtils::StringToWString(backupOldLogToFilename));
+
+	//printf("strLogFileW:%s\n",strLogFileW.c_str());
+	if (strLogFileW.empty())
+		return false;
+
+	if (!strLogFileOldW.empty()) {
+		(void) DeleteFileW(strLogFileOldW.c_str()); // if it's failed, try to continue
+		(void) MoveFileW(strLogFileW.c_str(), strLogFileOldW.c_str()); // if it's failed, try to continue
+	}
+
+	m_file = CreateFileW(strLogFileW.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+			NULL,
+			CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (m_file == INVALID_HANDLE_VALUE)
+		return false;
+
+	static const unsigned char BOM[3] = { 0xEF, 0xBB, 0xBF };
+	DWORD written;
+	(void) WriteFile(m_file, BOM, sizeof(BOM), &written, NULL); // write BOM, ignore possible errors
+	(void) FlushFileBuffers(m_file);
+
 	return true;
 }
 
 void LoggerThread::CloseLogFile() {
-
+	if (m_file != INVALID_HANDLE_VALUE) {
+		CloseHandle(m_file);
+		m_file = INVALID_HANDLE_VALUE;
+	}
 }
 
 bool LoggerThread::WriteStringToLog(const std::string &logString) {
-	return false;
+	if (m_file == INVALID_HANDLE_VALUE)
+		return false;
+
+	std::string strData(logString);
+	StringUtils::Replace(strData, "\n", "\r\n");
+	strData += "\r\n";
+
+	DWORD written;
+	const bool ret = (WriteFile(m_file, strData.c_str(), strData.length(),
+			&written, NULL) != 0) && written == strData.length();
+
+	return ret;
+
 }
 
 void LoggerThread::PrintDebugString(const std::string &debugString) {
-	printf("%s\n",line.c_str());
+#if !defined(USE_DEBUG_VIEW)
+	printf("%s\n", debugString.c_str());
+#else
+	::OutputDebugStringW(L"Debug Print: ");
+	int bufSize = MultiByteToWideChar(CP_UTF8, 0, debugString.c_str(),
+			debugString.length(), NULL, 0);
+	AutoBuffer buf(sizeof(wchar_t) * (bufSize + 1)); // '+1' for extra safety
+	if (MultiByteToWideChar(CP_UTF8, 0, debugString.c_str(),
+					debugString.length(), (wchar_t*) buf.get(),
+					buf.size() / sizeof(wchar_t)) == bufSize)
+	::OutputDebugStringW(
+			std::wstring((wchar_t*) buf.get(), bufSize).c_str());
+	else
+	::OutputDebugStringA(debugString.c_str());
+	::OutputDebugStringW(L"\n");
+#endif
 }
-
 #endif
 
 void LoggerThread::sendDebugMessage(const std::string& logString) {
+	//printf("start %s,%s\n", __func__, logString.c_str());
 	MQUEUE_ITEM *item = new_mqueue_item(); //you must free it after. print
 	int len = strlen(logString.c_str()) + 1;
 	item->Object = malloc(len);
@@ -150,12 +220,12 @@ int LoggerThread::_threadLoop(void* user) {
 	LoggerThread* pInstance = static_cast<LoggerThread*>(user);
 	if (pInstance == NULL)
 		return -1;
-	while (!pInstance->exitLoggerThread) {
+	while (pInstance->mRunning) {
 		MQUEUE_ITEM *item = pInstance->mBlockingQueue.DeQueue();
 		if (NULL != item) {
 			if (item->Object) {
 				pInstance->PrintDebugString((char *) item->Object);
-				pInstance->WriteStringToLog((char *) item->Object);
+				//pInstance->WriteStringToLog((char *) item->Object);
 				free(item->Object);
 				item->Object = NULL;
 			}
@@ -163,17 +233,37 @@ int LoggerThread::_threadLoop(void* user) {
 			item = NULL;
 		}
 	}
+	pInstance->m_ThreadId = vthread_id_t(-1);
 	return 0;
 }
 
-bool LoggerThread::createThread() {
+bool LoggerThread::start() {
 	bool res;
+	Mutex::Autolock _l(mLock);
+	if (mRunning) {
+		// thread already started
+		return INVALID_OPERATION;
+	}
+	m_ThreadId = vthread_id_t(-1);
+	mRunning = true;
 	res = createRawThread(_threadLoop, this, "LoggerThread", 0, &m_ThreadId);
 	if (res == false) {
+		mRunning = false;
 		m_ThreadId = vthread_id_t(-1);
-		return false;
+		return UNKNOWN_ERROR;
 	}
-	return true;
+	return NO_ERROR;
+}
+
+bool LoggerThread::isRuning() const {
+	Mutex::Autolock _l(mLock);
+	return mRunning;
+}
+
+void LoggerThread::stop() {
+	Mutex::Autolock _l(mLock);
+	mRunning = false;
+	mBlockingQueue.ExitQueue(); //force wakeup mBlockingQueue
 }
 
 } /* namespace vmodule */

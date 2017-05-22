@@ -22,6 +22,10 @@
 #include <limits.h>
 #include <sys/time.h>
 #include <time.h>
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
+
 
 #if defined(TARGET_ANDROID)
 nsecs_t systemTime(int clock)
@@ -101,6 +105,17 @@ std::string systemDateTimeToString() {
 	delete buf;
 	return datetime;
 }
+
+#if defined(TARGET_WINDOWS)
+static struct tm*
+localtime_r(const time_t *t, struct tm *tm)
+{
+	struct tm *tmp = localtime(t);
+	if (tmp)
+		*tm = *tmp;
+	return tmp;
+}
+#endif
 
 void GetCurrentLocalTime(int &hour, int &minute, int &second) {
 	time_t curTime;

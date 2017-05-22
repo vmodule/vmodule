@@ -14,7 +14,9 @@
 #include <sutils/StringUtils.h>
 #include <sutils/Thread.h>
 #include <sutils/RefBase.h>
-
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
 namespace vmodule {
 
 static const char* const levelNames[] = { "UNKNOWN", "DEFAULT", "VERBOSE",
@@ -27,13 +29,29 @@ static const char* const logLevelNames[] = { "VMODULE_LOG_UNKNOWN" /*0*/,
 		"VMODULE_LOG_WARN" /*5*/, "VMODULE_LOG_ERROR" /*6*/,
 		"VMODULE_LOG_FATAL" /*7*/, "VMODULE_LOG_SILENT" /*8*/
 };
-
+LoggerImpl* Logger::m_loggerImpl = NULL;
 // s_globals is used as static global with CLog global variables
 #define s_globals VMODULE_GLOBAL_USE(Logger).m_globalInstance
 
-Logger::Logger() {}
+Logger::Logger() {
+	if (NULL == m_loggerImpl)
+		m_loggerImpl = new LoggerImpl;
+	if (NULL != m_loggerImpl) {
+		Exception::SetLogger(m_loggerImpl);
+		CThread::SetLogger(m_loggerImpl);
+	}
+}
 
-Logger::~Logger() {}
+Logger::~Logger() {
+	if (NULL != m_loggerImpl) {
+		CThread::SetLogger(NULL);
+		Exception::SetLogger(NULL);
+		delete m_loggerImpl;
+		m_loggerImpl = NULL;
+	}
+
+	printf("start %s\n", __FUNCTION__);
+}
 
 void Logger::Close() {
 	Mutex::Autolock waitLock(s_globals.critSec);
@@ -41,6 +59,7 @@ void Logger::Close() {
 	s_globals.m_repeatLine.clear();
 }
 
+#if 0
 void Logger::Log(int loglevel, const char *format, ...) {
 	if (IsLogLevelLogged(loglevel)) {
 		va_list va;
@@ -49,6 +68,7 @@ void Logger::Log(int loglevel, const char *format, ...) {
 		va_end(va);
 	}
 }
+#endif
 
 void Logger::Log(int loglevel, const char *tag, const char *format, ...) {
 	if (IsLogLevelLogged(loglevel)) {
@@ -127,18 +147,17 @@ bool Logger::IsLogLevelLogged(int loglevel) {
 	return true;
 #else
 	if (s_globals.m_logLevel >= VMODULE_LOG_DEBUG)
-		return true;
+	return true;
 	if (s_globals.m_logLevel <= VMODULE_LOG_UNKNOWN)
-		return false;
+	return false;
 	return loglevel >= VMODULE_LOG_VERBOSE;
 #endif
 }
 
 void Logger::PrintDebugString(const std::string& line) {
 #if defined(DEBUG_ENABLE) || defined(PROFILE)
-	//printf("%s\n",line.c_str());
 	s_globals.m_thread.sendDebugMessage(line);
-#endif // defined(_DEBUG) || defined(PROFILE)
+#endif
 }
 
 bool Logger::FormatLogString(int logLevel, const std::string& logString) {
@@ -152,8 +171,7 @@ bool Logger::FormatLogString(int logLevel, const std::string& logString) {
 	GetCurrentLocalTime(hour, minute, second);
 
 	strData = StringUtils::Format(prefixFormat, hour, minute, second,
-			(uint64_t) CThread::CurrentThreadId(), levelNames[logLevel])
-			+ strData;
+			(uint64_t) GetCurrentThreadId(), levelNames[logLevel]) + strData;
 	PrintDebugString(strData);
 	return true;
 }

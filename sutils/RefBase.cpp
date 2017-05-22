@@ -20,7 +20,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <typeinfo>
+#if !defined(TARGET_WINDOWS)
 #include <unistd.h>
+#endif
+
 #include <sutils/RefBase.h>
 #include <sutils/Atomic.h>
 #include <sutils/Logger.h>
