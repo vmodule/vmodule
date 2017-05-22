@@ -27,15 +27,11 @@ typedef enum vmodule_LogPriority {
 	VMODULE_LOG_SILENT, /* only for SetMinPriority(); must be last */
 } vmodule_LogPriority;
 
-namespace vmodule {
-
 class ILogger {
 public:
-	ILogger();
-	virtual ~ILogger();
-	void Log(int loglevel,  const char *format, ...);
-	virtual void log(int loglevel, const char* message) = 0;
+	virtual ~ILogger(){};
+	void Log(int loglevel, const char *tag, const char *format, ...);
+	virtual void log(int loglevel,const char *tag, const char* message) = 0;
 };
 
-} /* namespace vmodule */
 #endif /* ILOGGER_H_ */

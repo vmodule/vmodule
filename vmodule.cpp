@@ -1,40 +1,47 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <sutils/Logger.h>
+#include <sutils/Timers.h>
+#include <sutils/FileUtils.h>
+#include <tests/StrongPointerTest.h>
+#include <tests/ThreadTest.h>
+
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
-#define LOG_TAG "CThread"
-
-#ifdef DEBUG_ENABLE
-#define MY_LOGD(fmt, arg...)  VLOGD(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#define MY_LOGE(fmt, arg...)  VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#else
-#define MY_LOGD(fmt, arg...)
-#define MY_LOGE(fmt, arg...)  VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#endif
+#define LOG_TAG "VMODULE"
 
 void vmodue_init() {
-	//global_Logger.Init("/home/jeffrey/workSpace/workApp/vmodule/log/");
+	char* pCurrDir = new char[260];
+	vmodule::CFileUtils::getCurrentDirectory(260,pCurrDir);
+	std::string pCurrDirString(pCurrDir);
+#if defined(TARGET_WINDOWS)
+	pCurrDirString.append("\\");
+#else
+	pCurrDirString.append("/");
+#endif
+	VLOGD(LOG_TAG,"pCurrDirString:%s\n", pCurrDirString.c_str());
+	s_globalsLogger.Init(pCurrDirString);
+	delete pCurrDir;
+
 }
 
 int main()
 {
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	MY_LOGD("start %s\n",__func__);
-	//s_globalsLoggerThread.stop();
-	while(true){
-		sleep(1);
-		MY_LOGD("start %s\n",__func__);
-	};
+	vmodue_init();
+	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
+	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
+	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
+	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
+	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
+	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
+	StrongPointerTest_main();
+	//ThreadTest_main();
+	/*while(true){
+		//::Sleep(1);
+		VLOGD(LOG_TAG,"start %s\n", __FUNCTION__);
+		//printf("start %s\n", __FUNCTION__);
+	};*/
 	return 0;
 }

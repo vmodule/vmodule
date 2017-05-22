@@ -28,7 +28,8 @@ class LoggerThread {
 public:
 	LoggerThread();
 	virtual ~LoggerThread();
-	bool createThread();
+	bool start();
+	void stop();
 	bool OpenLogFile(const std::string& logFilename,
 			const std::string& backupOldLogToFilename);
 	void CloseLogFile(void);
@@ -38,11 +39,13 @@ public:
 #if defined(TARGET_ANDROID)
 	int android_printf(int logLevel, const char *tag, const char *msg, ...);
 #endif
+	bool isRuning() const;
 protected:
 	static int _threadLoop(void* user);
-	bool exitLoggerThread;
+private:
+	bool mRunning;
 	vthread_id_t m_ThreadId;
-	Mutex   mLock;
+	mutable Mutex   mLock;
 	Condition mExitedCondition;
 	friend class Logger;
 	FILEWRAP* m_file;

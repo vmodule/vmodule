@@ -12,6 +12,7 @@
 #include <vector>
 #include <cctype>
 #include <iterator>
+#include <stdarg.h>
 
 namespace vmodule {
 class StringUtils {
@@ -44,6 +45,8 @@ public:
 	static std::string& TrimRight(std::string &str);
 	static std::string& TrimRight(std::string &str, const char* const chars);
 	static std::string& RemoveDuplicatedSpacesAndTabs(std::string& str);
+	static std::wstring StringToWString(const std::string &str);
+
 	/*! \brief check whether a string is a natural number.
 	 Matches [ \t]*[0-9]+[ \t]*
 	 \param str the string to check

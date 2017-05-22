@@ -19,6 +19,7 @@ public:
 	virtual ~VmBlockingQueue();
 	MQUEUE_ITEM* DeQueue(nsecs_t waitDuration = -1); //-1 wait forever..
 	void EnQueue(MQUEUE_ITEM* item);
+	void ExitQueue();
 private:
 	Condition waitCond;
 	Mutex waitMutex;

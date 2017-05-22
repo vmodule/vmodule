@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #if defined(TARGET_ANDROID)
 #include <stdatomic.h>
-//#elif defined(__POSIX__)
 #else
 #include <atomic>
 #endif

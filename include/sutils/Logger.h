@@ -7,20 +7,21 @@
 
 #ifndef VMODULE_LOGGER_H_
 #define VMODULE_LOGGER_H_
-
+#include <memory>
 #include <sutils/Mutex.h>
 #include <sutils/SingletonHelper.h>
 #include <sutils/ILogger.h>
 #include <sutils/Exception.h>
 #include <sutils/Thread.h>
 #include <sutils/LoggerThread.h>
+class LoggerImpl;
 namespace vmodule {
 class Logger {
 public:
 	Logger();
 	~Logger();
 	static void Close();
-	static void Log(int loglevel, const char *format, ...);
+	//static void Log(int loglevel, const char *format, ...);
 	static void Log(int loglevel, const char *tag, const char *format, ...);
 	static void LogFunction(int loglevel, const char* functionName,
 			const char* format, ...);
@@ -36,29 +37,22 @@ protected:
 	class LoggerGlobals {
 	public:
 		LoggerGlobals() :
-				m_repeatCount(0), m_repeatLogLevel(0), m_logLevel(
+			m_repeatCount(0), m_repeatLogLevel(0), m_logLevel(
 						VMODULE_LOG_DEBUG), m_extraLogLevels(0) {
 		}
-		~LoggerGlobals(){};
+		~LoggerGlobals() {
+			m_thread.stop();
+		}
 		LoggerThread m_thread;
 		int m_repeatCount;
 		int m_repeatLogLevel;
 		std::string m_repeatLine;
 		int m_logLevel;
 		int m_extraLogLevels;
-		bool start;
 		Mutex critSec;
 	};
 	class LoggerGlobals m_globalInstance; // used as static global variable
-};
-
-class ILogImpl: public ILogger {
-public:
-	virtual ~ILogImpl() {
-	}
-	inline virtual void log(int logLevel, const char* message) {
-		Logger::Log(logLevel, "%s", message);
-	}
+	static LoggerImpl *m_loggerImpl;
 };
 
 } /* namespace vmodule */
@@ -88,6 +82,16 @@ VMODULE_GLOBAL_REF(vmodule::Logger, s_globalsLogger);
     ? ((void)vmodule::Logger::Log(VMODULE_LOG_DEBUG,tag,format,##__VA_ARGS__) \
     : (void)0 )
 #endif
+
+class LoggerImpl : public ILogger {
+public:
+	virtual ~LoggerImpl() {}
+	inline virtual void log(int logLevel, const char *tag,
+			const char* message) {
+		vmodule::Logger::Log(logLevel, tag, "%s", message);
+	}
+};
+
 
 #endif /* LOGGER_H_ */
 

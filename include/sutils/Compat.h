@@ -17,7 +17,10 @@
 #ifndef VMODULE_COMPAT_H
 #define VMODULE_COMPAT_H
 
+
+#if !defined(TARGET_WINDOWS)
 #include <unistd.h>
+#endif
 
 #if defined(__APPLE__)
 

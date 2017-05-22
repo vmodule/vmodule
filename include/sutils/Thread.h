@@ -24,6 +24,7 @@
 #include <sutils/Mutex.h>
 #include <sutils/RefBase.h>
 #include <sutils/ThreadDefs.h>
+#include <sutils/ILogger.h>
 
 namespace vmodule {
 class CThread: virtual public RefBase {
@@ -33,6 +34,8 @@ public:
 	virtual status_t run(const char* name = 0, size_t stack = 0);
 	virtual void requestExit();
 	virtual status_t readyToRun();
+	void Sleep(unsigned int milliseconds=0);
+	void Wakeup();
 	status_t requestExitAndWait();
 	status_t join();
 	bool isRunning() const;
@@ -43,8 +46,8 @@ public:
 #endif
 	vthread_id_t ThreadId() const;
 	static CThread* GetCurrentThread();
-	static bool IsCurrentThread(const vthread_id_t tid);
-	static vthread_id_t CurrentThreadId();
+	static inline void SetLogger(ILogger* logger_) { CThread::logger = logger_; }
+	static inline ILogger* GetLogger() { return CThread::logger; }
 protected:
 	// exitPending() returns true if requestExit() has been called.
 	bool exitPending() const;
@@ -64,6 +67,7 @@ private:
 	vthread_id_t    m_ThreadId;
 	mutable Mutex   mLock;
 	Condition       mExitedCondition;
+	Condition       mWaitCondition;
 	status_t        mStatus;
 	// note that all accesses of mExitPending and mRunning need to hold mLock
 	volatile bool   mExitPending;
@@ -75,6 +79,7 @@ private:
     pid_t           mTid;
 #endif
     std::string m_ThreadName;
+    static ILogger* logger;
 };
 }
 

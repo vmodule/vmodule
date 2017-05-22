@@ -22,11 +22,15 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#include <sys/time.h>
 #include <string>
 #include <string.h>
 #include <sutils/Compat.h>
-
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#else
+#include <sys/time.h>
+#include <unistd.h>
+#endif
 // ------------------------------------------------------------------
 // C API
 

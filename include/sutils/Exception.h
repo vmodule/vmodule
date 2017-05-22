@@ -12,6 +12,12 @@
 #include <stdlib.h>
 #include <sutils/StringUtils.h>
 #include <sutils/ILogger.h>
+
+#ifdef LOG_TAG
+#undef LOG_TAG
+#endif
+#define LOG_TAG "Exception"
+
 #ifdef __GNUC__
 // The 'this' pointer counts as a parameter on member methods.
 #define VMODULE_ATTRIB_EXCEPTION_FORMAT __attribute__((format(printf,2,3)))
@@ -85,8 +91,9 @@ public:
 
 	inline virtual void LogThrowMessage(const char* prefix = NULL) const {
 		if (logger)
-			logger->Log(VMODULE_LOG_ERROR, "EXCEPTION Thrown (%s) : %s",
-					classname.c_str(), message.c_str());
+			logger->Log(VMODULE_LOG_ERROR, LOG_TAG,
+					"EXCEPTION Thrown (%s) : %s", classname.c_str(),
+					message.c_str());
 	}
 
 	inline virtual const char* GetMessage() const {
