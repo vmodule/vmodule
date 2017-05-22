@@ -14,6 +14,7 @@
 #include <sutils/StringUtils.h>
 #include <sutils/Thread.h>
 #include <sutils/RefBase.h>
+#include <sutils/ThreadImpl.h>
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
 #endif

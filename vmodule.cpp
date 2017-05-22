@@ -38,10 +38,10 @@ int main()
 	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
 	StrongPointerTest_main();
 	//ThreadTest_main();
-	/*while(true){
-		//::Sleep(1);
+	while(true){
+		sleep(1);
 		VLOGD(LOG_TAG,"start %s\n", __FUNCTION__);
 		//printf("start %s\n", __FUNCTION__);
-	};*/
+	};
 	return 0;
 }

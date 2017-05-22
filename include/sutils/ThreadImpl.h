@@ -27,10 +27,10 @@ extern int createRawThread(vthread_func_t entryFunction, void *userData,
 		const char* threadName, size_t threadStackSize,
 		vthread_id_t *threadId);
 
-bool IsCurrentThread(const vthread_id_t tid);
+extern bool IsCurrentThread(const vthread_id_t tid);
 
 #if !defined(TARGET_WINDOWS)
-vthread_id_t GetCurrentThreadId();
+extern vthread_id_t GetCurrentThreadId();
 #endif
 
 #ifdef __cplusplus
