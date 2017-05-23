@@ -76,21 +76,20 @@ bool ThreadTest2::threadLoop() {
 }
 
 
-int ThreadTest_main() {
+//int ThreadTest_main() {
+int main() {	
 	//vmodule::Logger::Init("/home/jeffrey/workSpace/workApp/vmodule/log/");
 	sp<ThreadTest> mThreadTest1;
 	sp<ThreadTest2> mThreadTest2;
-#if 0
 	std::string threadName1("ThreadTest1");
 	mThreadTest1 = new ThreadTest();
 	mThreadTest1->run(threadName1.c_str());
-#endif
 	std::string threadName2("ThreadTest2");
 	mThreadTest2 = new ThreadTest2();
 	mThreadTest2->run(threadName2.c_str());
 	while (true) {
 		//Sleep(1000);
-		mThreadTest2->Sleep(1);
+		mThreadTest2->Sleep(1000);
 		MY_LOGD("ThreadTest_main,%s: \n", __FUNCTION__);
 	}
 	mThreadTest1.clear();

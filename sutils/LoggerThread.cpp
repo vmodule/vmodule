@@ -18,7 +18,7 @@
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
 #endif
-
+#define USE_DEBUG_VIEW 1
 namespace vmodule {
 
 #if !defined(TARGET_WINDOWS)
@@ -137,11 +137,9 @@ bool LoggerThread::OpenLogFile(const std::string &logFilename,
 		return false; // file was already opened
 	if (logFilename.empty())
 		return false;
-	std::wstring strLogFileW(StringUtils::StringToWString(logFilename));
-	std::wstring strLogFileOldW(
-			StringUtils::StringToWString(backupOldLogToFilename));
+	std::wstring strLogFileW(StringUtils::win32ConvertUtf8ToW(logFilename));
+	std::wstring strLogFileOldW(StringUtils::win32ConvertUtf8ToW(backupOldLogToFilename));
 
-	//printf("strLogFileW:%s\n",strLogFileW.c_str());
 	if (strLogFileW.empty())
 		return false;
 
@@ -208,7 +206,7 @@ void LoggerThread::PrintDebugString(const std::string &debugString) {
 #endif
 
 void LoggerThread::sendDebugMessage(const std::string& logString) {
-	//printf("start %s,%s\n", __func__, logString.c_str());
+	//Mutex::Autolock _l(mLock);
 	MQUEUE_ITEM *item = new_mqueue_item(); //you must free it after. print
 	int len = strlen(logString.c_str()) + 1;
 	item->Object = malloc(len);
@@ -221,16 +219,18 @@ int LoggerThread::_threadLoop(void* user) {
 	if (pInstance == NULL)
 		return -1;
 	while (pInstance->mRunning) {
-		MQUEUE_ITEM *item = pInstance->mBlockingQueue.DeQueue();
-		if (NULL != item) {
-			if (item->Object) {
-				pInstance->PrintDebugString((char *) item->Object);
-				//pInstance->WriteStringToLog((char *) item->Object);
-				free(item->Object);
-				item->Object = NULL;
+		{
+			MQUEUE_ITEM *item = pInstance->mBlockingQueue.DeQueue();
+			if (NULL != item) {
+				if (item->Object) {
+					pInstance->PrintDebugString((char *) item->Object);
+					pInstance->WriteStringToLog((char *) item->Object);
+					free(item->Object);
+					item->Object = NULL;
+				}
+				free(item);
+				item = NULL;
 			}
-			free(item);
-			item = NULL;
 		}
 	}
 	pInstance->m_ThreadId = vthread_id_t(-1);

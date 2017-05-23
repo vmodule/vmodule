@@ -45,8 +45,10 @@ public:
 	static std::string& TrimRight(std::string &str);
 	static std::string& TrimRight(std::string &str, const char* const chars);
 	static std::string& RemoveDuplicatedSpacesAndTabs(std::string& str);
-	static std::wstring StringToWString(const std::string &str);
-
+#if defined(TARGET_WINDOWS)
+	static std::wstring win32ConvertUtf8ToW(const std::string &text);
+	static std::string win32ConvertWToUtf8(const std::wstring &text);
+#endif
 	/*! \brief check whether a string is a natural number.
 	 Matches [ \t]*[0-9]+[ \t]*
 	 \param str the string to check

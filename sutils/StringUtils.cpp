@@ -684,13 +684,47 @@ int StringUtils::asciixdigitvalue(char chr) {
 	return -1;
 }
 
-std::wstring StringUtils::StringToWString(const std::string &str) {
-	int nLen = (int) str.length();
-	std::wstring wstr;
-	wstr.resize(nLen, L' ');
-	MultiByteToWideChar(CP_UTF8, 0, (LPCSTR) str.c_str(), nLen,
-			(LPWSTR) wstr.c_str(), nLen);
-	return wstr;
+#if defined(TARGET_WINDOWS)
+std::wstring StringUtils::win32ConvertUtf8ToW(const std::string &text) {
+	if (text.empty()) {
+		return L"";
+	}
+
+	int bufSize = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+			text.c_str(), -1, NULL, 0);
+	if (bufSize == 0)
+		return L"";
+	wchar_t *converted = new wchar_t[bufSize];
+	if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text.c_str(), -1,
+			converted, bufSize) != bufSize) {
+		delete[] converted;
+		return L"";
+	}
+
+	std::wstring Wret(converted);
+	delete[] converted;
+
+	return Wret;
 }
 
+std::string StringUtils::win32ConvertWToUtf8(const std::wstring &text) {
+	if (text.empty())
+		return "";
+	int bufSize = WideCharToMultiByte(CP_UTF8, 0,
+			text.c_str(), -1, NULL, 0, NULL, NULL);
+	if (bufSize == 0)
+		return "";
+	char * converted = new char[bufSize];
+	if (WideCharToMultiByte(CP_UTF8, 0, text.c_str(), -1,
+			converted, bufSize, NULL, NULL) != bufSize) {
+		delete[] converted;
+		return "";
+	}
+
+	std::string ret(converted);
+	delete[] converted;
+
+	return ret;
+}
+#endif
 }

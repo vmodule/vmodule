@@ -9,6 +9,7 @@
 #define VMODULE_FILEUTILS_H_
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 namespace vmodule {
 
 class CFileUtils {

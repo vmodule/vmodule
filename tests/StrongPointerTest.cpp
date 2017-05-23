@@ -48,7 +48,8 @@ void StrongPointerTest::onFirstRef() {
 	MY_LOGD("enter %s",__func__);
 }
 
-int StrongPointerTest_main() {
+//int StrongPointerTest_main() {
+int main() {	
 	//vmodule::Logger::Init("/home/jeffrey/workSpace/workApp/vmodule/log/");
 	sp<StrongPointerTest> test1 = new StrongPointerTest();
 	MY_LOGD("test1 getStrongCount = %d",test1->getStrongCount());

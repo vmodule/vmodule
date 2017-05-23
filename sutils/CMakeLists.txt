@@ -15,7 +15,8 @@ set(LIB_SUTILS_SRC
     VmBlockingQueue.cpp
     VmHeap.cpp
     VmQueue.cpp
-    AutoBuffer.cpp)    
+    AutoBuffer.cpp
+    FileUtils.cpp)    
 add_library(sutils SHARED ${LIB_SUTILS_SRC})
 target_link_libraries(sutils
     pthread)

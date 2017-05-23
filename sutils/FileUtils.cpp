@@ -8,6 +8,8 @@
 #include <sutils/FileUtils.h>
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 namespace vmodule {
 

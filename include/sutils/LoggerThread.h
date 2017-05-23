@@ -13,16 +13,13 @@
 #include <sutils/VmQueue.h>
 #include <sutils/ILogger.h>
 #include <sutils/ThreadDefs.h>
+#include <sutils/PlatformDefs.h>
+
 #if defined(TARGET_ANDROID)
 #include <android/log.h>
 #endif
-namespace vmodule {
 
-#if !defined(TARGET_WINDOWS)
-typedef FILE FILEWRAP;
-#else
-typedef void FILEWRAP;
-#endif
+namespace vmodule {
 
 class LoggerThread {
 public:
