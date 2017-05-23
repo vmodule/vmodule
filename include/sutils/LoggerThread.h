@@ -42,8 +42,6 @@ protected:
 private:
 	bool mRunning;
 	vthread_id_t m_ThreadId;
-	mutable Mutex   mLock;
-	Condition mExitedCondition;
 	friend class Logger;
 	FILEWRAP* m_file;
 	VmBlockingQueue mBlockingQueue;

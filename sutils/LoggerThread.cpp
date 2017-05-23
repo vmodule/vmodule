@@ -206,7 +206,6 @@ void LoggerThread::PrintDebugString(const std::string &debugString) {
 #endif
 
 void LoggerThread::sendDebugMessage(const std::string& logString) {
-	//Mutex::Autolock _l(mLock);
 	MQUEUE_ITEM *item = new_mqueue_item(); //you must free it after. print
 	int len = strlen(logString.c_str()) + 1;
 	item->Object = malloc(len);
@@ -239,7 +238,6 @@ int LoggerThread::_threadLoop(void* user) {
 
 bool LoggerThread::start() {
 	bool res;
-	Mutex::Autolock _l(mLock);
 	if (mRunning) {
 		// thread already started
 		return INVALID_OPERATION;
@@ -256,12 +254,10 @@ bool LoggerThread::start() {
 }
 
 bool LoggerThread::isRuning() const {
-	Mutex::Autolock _l(mLock);
 	return mRunning;
 }
 
 void LoggerThread::stop() {
-	Mutex::Autolock _l(mLock);
 	mRunning = false;
 	mBlockingQueue.ExitQueue(); //force wakeup mBlockingQueue
 }

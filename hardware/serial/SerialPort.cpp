@@ -269,10 +269,10 @@ bool CSerialPortReadTask::threadLoop() {
 	if (client == 0 || client->m_file < 0)
 		return false;
 	unsigned char buffer[256];
-	bool result;
+	int result;
 	result = select(client->m_file,
 			&client->readset, 0, 0, &client->time_out);
-	if(result == -1 && result == errno==EINTR)
+	if(result == -1 && errno==EINTR)
 		return true;
 	else if (result == 0) //time out
 		return true;

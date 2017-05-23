@@ -73,7 +73,7 @@ typedef void*         PVOID;
 typedef void*         LPVOID;
 
 typedef void*       HWND;
-//typedef const       CONST;
+typedef const       CONST;
 typedef BYTE*       LPBYTE;
 typedef DWORD*        LPDWORD;
 //typedef CONST CHAR*   LPCSTR;

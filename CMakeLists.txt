@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 project(vmodule)
 OPTION(BUILD_TESTS "Build test programs" OFF)
 OPTION(BUILD_NETWORK "Build network programs" OFF)
+OPTION(BUILD_HARDWARE "Build hareware programs" ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -UNDEBUG -g3 -O3 -Wall -fmessage-length=0 -Wno-unused-parameter -fexceptions")
 add_definitions("-DDEBUG_ENABLE")
 add_definitions("-DTARGET_POSIX")
@@ -13,6 +14,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/output/libs)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(sutils)
 
+if(BUILD_HARDWARE)
+add_subdirectory(hardware)
+endif(BUILD_HARDWARE)
+
 if(BUILD_NETWORK)
 add_subdirectory(network)
 endif(BUILD_NETWORK)
@@ -21,8 +26,9 @@ set(LIB_VMODULE_SRC ${CMAKE_SOURCE_DIR}/vmodule.cpp)
 add_executable(vmodule ${LIB_VMODULE_SRC})
 target_link_libraries(
     vmodule 
-    "-Wl,--whole-archive" #之后的库使用--whole-archive选项
+    "-Wl,--whole-archive" #之后的库使用--whole-archive选项  
     sutils
+    hardware  
     pthread
     "-Wl,--no-whole-archive")  #之后的库不使用--whole-archive选项
 #set_target_properties(vmodule_static PROPERTIES OUTPUT_NAME "vmodule")  
