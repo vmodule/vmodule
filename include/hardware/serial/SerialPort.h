@@ -30,6 +30,7 @@
 #include <sutils/RefBase.h>
 #include <sutils/VmBlockingQueue.h>
 #include <sutils/VmQueue.h>
+#include <sutils/types.h>
 
 namespace vmodule {
 class CSerialPortReadTask;
@@ -69,7 +70,7 @@ public:
 	 *  @note:
 	 *  @see:
 	 */
-	status_t ReadByte(unsigned char &byte);
+	status_t ReadByte(u_int8_t &byte);
 
 #if defined(TARGET_WINDOWS)
 	int GetTotalBytes();
@@ -115,6 +116,8 @@ public:
 	static const nsecs_t kWaitDuration = 100000000; // 100 ms
 protected:
 	wp<CSerialPort> mClient;
+	u_int8_t buffer[1024];
+	int len;
 	virtual bool threadLoop();
 };
 

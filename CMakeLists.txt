@@ -23,6 +23,7 @@ add_subdirectory(network)
 endif(BUILD_NETWORK)
 
 set(LIB_VMODULE_SRC ${CMAKE_SOURCE_DIR}/vmodule.cpp)
+add_definitions("-DVMODULE_EXECUTABLE")
 add_executable(vmodule ${LIB_VMODULE_SRC})
 target_link_libraries(
     vmodule 

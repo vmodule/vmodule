@@ -232,6 +232,4 @@ void CThread::Wakeup(){
 	Mutex::Autolock _l(mLock);
 	mWaitCondition.broadcast();
 }
-
 }
-

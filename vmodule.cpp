@@ -1,48 +1,70 @@
+// vmodule.cpp : Defines the exported functions for the DLL application.
+//
+
+#include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <sutils/Logger.h>
-#include <sutils/Timers.h>
 #include <sutils/FileUtils.h>
-#include <tests/StrongPointerTest.h>
-#include <tests/ThreadTest.h>
-#include <hardware/serial/SerialPort.h>
+#include <vmodule/vmodule.h>
+#if defined(TARGET_WINDOWS)
+#include <windows.h>
+#endif
+
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
 #define LOG_TAG "VMODULE"
-using namespace vmodule;
-void vmodue_init() {
+
+#define MY_LOGD(format,...) 	vmodule::Logger::Log(VMODULE_LOG_DEBUG,LOG_TAG,format,##__VA_ARGS__)
+#define MY_LOGE(format,...) 	vmodule::Logger::Log(VMODULE_LOG_ERROR,LOG_TAG,format,##__VA_ARGS__)
+// This is an example of an exported variable
+VMODULE_API int nvmodule=0;
+
+// This is an example of an exported function.
+VMODULE_API int fnvmodule(void)
+{
+	return 42;
+}
+
+// This is the constructor of a class that has been exported.
+// see vmodule.h for the class definition
+Cvmodule::Cvmodule()
+{
+	return;
+}
+
+VMODULE_API void vmodue_init() {
 	char* pCurrDir = new char[260];
-	vmodule::CFileUtils::getCurrentDirectory(260,pCurrDir);
+	GetCurrentDirectory(260, pCurrDir);
 	std::string pCurrDirString(pCurrDir);
 #if defined(TARGET_WINDOWS)
 	pCurrDirString.append("\\");
 #else
 	pCurrDirString.append("/");
 #endif
-	VLOGD(LOG_TAG,"pCurrDirString:%s\n", pCurrDirString.c_str());
-	s_globalsLogger.Init(pCurrDirString);
-	delete pCurrDir;
+	vmodule::Logger::Init(pCurrDirString);
+	if (pCurrDir != NULL) {
+		delete pCurrDir;
+		pCurrDir = NULL;
+	}
 }
 
+#ifdef VMODULE_EXECUTABLE
 int main()
 {
 	vmodue_init();
-	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
-	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
-	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
-	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
-	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
-	VLOGD(LOG_TAG,"start- %s\n", __FUNCTION__);
-	sp<CSerialPort> serialport = new CSerialPort();
-	serialport->InitPort("COM5",CBR_2400);
-	//StrongPointerTest_main();
-	//ThreadTest_main();
-	while(true){
-		//::Sleep(1);
-		//VLOGD(LOG_TAG,"start %s\n", __FUNCTION__);
-		//printf("start %s\n", __FUNCTION__);
+	int count = 0;
+	while (count < 100){
+		MY_LOGD("start %s", __FUNCTION__);
+		count++;
 	};
+	#if defined(TARGET_WINDOWS)
+	system("pause");
+	#else
+	while(true);
+	#endif
 	return 0;
 }
+#endif

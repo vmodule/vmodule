@@ -19,16 +19,23 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+
+#ifndef _M_CEE //for c++ and c#
 #if defined(TARGET_ANDROID)
 #include <stdatomic.h>
 #else
 #include <atomic>
 #endif
-
 using namespace std;
+#else
+#include <sutils/Mutex.h>
+#endif
+
 #ifndef VMODULE_ATOMIC_INLINE
 #define VMODULE_ATOMIC_INLINE static inline
 #endif
+
+#ifndef _M_CEE //for c++ and c#
 
 /*
  * A handful of basic atomic operations.
@@ -220,9 +227,12 @@ int vmodule_atomic_release_cas(int32_t oldvalue, int32_t newvalue,
 VMODULE_ATOMIC_INLINE
 void vmodule_compiler_barrier(void)
 {
-    __asm__ __volatile__ ("" : : : "memory");
+	//__MINGW32__ is success for compiler..
+#ifndef WIN32 //not WIN32
+	__asm__ __volatile__ ("" : : : "memory");
     /* Could probably also be:                          */
     /* atomic_signal_fence(memory_order_seq_cst);       */
+#endif	
 }
 
 VMODULE_ATOMIC_INLINE
@@ -238,5 +248,72 @@ void vmodule_memory_barrier(void)
  */
 #define vmodule_atomic_write vmodule_atomic_release_store
 #define vmodule_atomic_cmpxchg vmodule_atomic_release_cas
+#else
+
+
+static vmodule::Mutex sMutex;
+
+VMODULE_ATOMIC_INLINE
+int vmodule_atomic_cmpxchg(int32_t oldvalue, int32_t newvalue,
+	volatile int32_t* addr) 
+{
+	int xchg;
+	vmodule::Mutex::Autolock _l(&sMutex);
+	if(oldvalue == *addr){
+		xchg=1;
+		*addr = newvalue;
+	} else {
+		xchg=0;
+	}
+	return xchg;
+}
+
+VMODULE_ATOMIC_INLINE
+void android_atomic_write(int32_t value, volatile int32_t* addr) {
+	vmodule::Mutex::Autolock _l(&sMutex);
+	*addr = value;
+}
+
+
+VMODULE_ATOMIC_INLINE
+int32_t vmodule_atomic_add(int32_t value, volatile int32_t* addr) 
+{
+	vmodule::Mutex::Autolock _l(&sMutex);
+    *addr += value;
+    return *addr;
+}
+
+VMODULE_ATOMIC_INLINE
+int32_t vmodule_atomic_or(int32_t value, volatile int32_t* addr)
+{
+    unsigned int oldval;
+	vmodule::Mutex::Autolock _l(&sMutex);
+    oldval=*addr;
+    *addr = oldval | value;
+    return oldval;
+}
+
+VMODULE_ATOMIC_INLINE
+int32_t vmodule_atomic_inc(volatile int32_t* addr) 
+{
+	vmodule::Mutex::Autolock _l(&sMutex);
+	int32_t oldval;
+	oldval = *addr;
+	*addr = oldval + 1;
+	return oldval;
+}
+
+VMODULE_ATOMIC_INLINE
+int32_t vmodule_atomic_dec(volatile int32_t* addr) 
+{
+
+	vmodule::Mutex::Autolock _l(&sMutex);
+	int32_t oldval;
+	oldval = *addr;
+	*addr = oldval - 1;
+	return oldval;
+}
+
+#endif
 
 #endif // VMODULE_CUTILS_ATOMIC_H

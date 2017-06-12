@@ -51,9 +51,13 @@ void mqueue_free(MQUEUE *mq) {
  */
 void mqueue_push(MQUEUE *mq, MQUEUE_ITEM *item) {
 	assert(mq != NULL);
+
 	assert(mq->head !=NULL);
+
 	assert(item != NULL);
+
 	assert(item->mQueue==NULL);
+
 	//1.让最后一个元素和item首尾相连(mq->head->prev记录了最后一个元素)
 	mq->head->prev->next = item;
 	item->prev = mq->head->prev;
@@ -62,6 +66,7 @@ void mqueue_push(MQUEUE *mq, MQUEUE_ITEM *item) {
 	//3.将mq->head的prev指向item
 	mq->head->prev = item;
 	item->mQueue = mq; //记录该元素已经加入到队列中
+
 	mq->fLength++;
 }
 /**

@@ -14,9 +14,15 @@ namespace vmodule {
 
 class CFileUtils {
 public:
-	static int getCurrentDirectory(int size, char *name);
+#if !defined(TARGET_WINDOWS)	
+	static int GetCurrentDirectory(int size, char *name);
+#endif
 };
 
 } /* namespace vmodule */
+
+#if !defined(TARGET_WINDOWS)	
+int GetCurrentDirectory(int size, char *name);
+#endif
 
 #endif /* INCLUDE_SUTILS_FILEUTILS_H_ */

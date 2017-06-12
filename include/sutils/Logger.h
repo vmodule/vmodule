@@ -57,9 +57,6 @@ protected:
 
 } /* namespace vmodule */
 
-VMODULE_GLOBAL_REF(vmodule::Logger, s_globalsLogger);
-#define s_globalsLogger VMODULE_GLOBAL_USE(vmodule::Logger)
-
 #if defined(DEBUG_ENABLE)
 #define VLOGD(tag,format,...) 	vmodule::Logger::Log(VMODULE_LOG_DEBUG,tag,format,##__VA_ARGS__)
 #define VLOGI(tag,format,...) 	vmodule::Logger::Log(VMODULE_LOG_INFO,tag,format,##__VA_ARGS__)

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <iostream>
 #include <sutils/LoggerThread.h>
 #include <sutils/Logger.h>
 #include <sutils/ThreadImpl.h>
@@ -18,9 +19,8 @@
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
 #endif
-#define USE_DEBUG_VIEW 1
+//#define USE_DEBUG_VIEW 1
 namespace vmodule {
-
 #if !defined(TARGET_WINDOWS)
 LoggerThread::LoggerThread() :
 mRunning(false), m_ThreadId(vthread_id_t(-1)), m_file(NULL) {
@@ -119,7 +119,6 @@ void LoggerThread::PrintDebugString(const std::string &debugString) {
 LoggerThread::LoggerThread() :
 		mRunning(false), m_file(INVALID_HANDLE_VALUE) {
 	// TODO Auto-generated constructor stub
-	printf("start %s\n", __FUNCTION__);
 	start();
 }
 
@@ -186,8 +185,8 @@ bool LoggerThread::WriteStringToLog(const std::string &logString) {
 }
 
 void LoggerThread::PrintDebugString(const std::string &debugString) {
-#if !defined(USE_DEBUG_VIEW)
-	printf("%s\n", debugString.c_str());
+#ifndef USE_DEBUG_VIEW
+	std::cout << debugString.c_str() << std::endl;
 #else
 	::OutputDebugStringW(L"Debug Print: ");
 	int bufSize = MultiByteToWideChar(CP_UTF8, 0, debugString.c_str(),
@@ -222,13 +221,16 @@ int LoggerThread::_threadLoop(void* user) {
 			MQUEUE_ITEM *item = pInstance->mBlockingQueue.DeQueue();
 			if (NULL != item) {
 				if (item->Object) {
-					pInstance->PrintDebugString((char *) item->Object);
-					pInstance->WriteStringToLog((char *) item->Object);
+					std::string loginfo((char *)item->Object);
+					pInstance->PrintDebugString(loginfo);
+					pInstance->WriteStringToLog(loginfo);
 					free(item->Object);
 					item->Object = NULL;
 				}
 				free(item);
 				item = NULL;
+			} else {
+				continue;
 			}
 		}
 	}

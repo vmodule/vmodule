@@ -13,8 +13,9 @@
 #endif
 namespace vmodule {
 
-int CFileUtils::getCurrentDirectory(int size, char *name) {
-#if !defined(TARGET_WINDOWS)
+#if !defined(TARGET_WINDOWS)	
+int CFileUtils::GetCurrentDirectory(int size, char *name) {
+
 	int cnt = readlink("/proc/self/exe", name, size);
 	if (cnt < 0 || cnt >= size) {
 		printf("***getCurrentDirectory Error***\n");
@@ -29,9 +30,19 @@ int CFileUtils::getCurrentDirectory(int size, char *name) {
 		}
 	}
 	return strlen(name);
-#else
-	return ::GetCurrentDirectory(size, name);
-#endif
 }
+#endif
 
 } /* namespace vmodule */
+
+
+
+#if !defined(TARGET_WINDOWS)	
+int GetCurrentDirectory(int size, char *name)
+{
+	return vmodule::CFileUtils::GetCurrentDirectory(size, name);
+}
+#endif
+
+
+

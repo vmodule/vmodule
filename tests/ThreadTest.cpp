@@ -13,7 +13,6 @@
 #include <sutils/Timers.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #ifdef LOG_TAG
 #undef LOG_TAG
@@ -21,12 +20,13 @@
 #define LOG_TAG "ThreadTest"
 
 #ifdef DEBUG_ENABLE
-#define MY_LOGD(fmt, arg...)  VLOGD(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#define MY_LOGE(fmt, arg...)  VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
+#define MY_LOGD(format, ...) vmodule::Logger::Log(VMODULE_LOG_DEBUG,LOG_TAG,format,##__VA_ARGS__)
+#define MY_LOGE(format, ...)  vmodule::Logger::Log(VMODULE_LOG_ERROR,LOG_TAG,format,##__VA_ARGS__)
 #else
-#define MY_LOGD(fmt, arg...)
-#define MY_LOGE(fmt, arg...)  VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
+#define MY_LOGD(format, ...)
+#define MY_LOGE(format, ...)  vmodule::Logger::Log(VMODULE_LOG_ERROR,LOG_TAG,format,##__VA_ARGS__)
 #endif
+
 using namespace std;
 using namespace vmodule;
 
@@ -76,8 +76,8 @@ bool ThreadTest2::threadLoop() {
 }
 
 
-//int ThreadTest_main() {
-int main() {	
+int ThreadTest_main() {
+//int main() {	
 	//vmodule::Logger::Init("/home/jeffrey/workSpace/workApp/vmodule/log/");
 	sp<ThreadTest> mThreadTest1;
 	sp<ThreadTest2> mThreadTest2;

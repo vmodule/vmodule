@@ -73,7 +73,7 @@ void Logger::Log(int loglevel, const char *format, ...) {
 
 void Logger::Log(int loglevel, const char *tag, const char *format, ...) {
 	if (IsLogLevelLogged(loglevel)) {
-		std::string tagInfo;
+		std::string tagInfo = "";
 		if (tag && tag[0] && (strlen(tag) != 0))
 			tagInfo.assign(tag).append(": ");
 		else
@@ -148,9 +148,9 @@ bool Logger::IsLogLevelLogged(int loglevel) {
 	return true;
 #else
 	if (s_globals.m_logLevel >= VMODULE_LOG_DEBUG)
-	return true;
+		return true;
 	if (s_globals.m_logLevel <= VMODULE_LOG_UNKNOWN)
-	return false;
+		return false;
 	return loglevel >= VMODULE_LOG_VERBOSE;
 #endif
 }

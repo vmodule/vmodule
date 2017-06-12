@@ -27,8 +27,14 @@
 #include <sutils/RefBase.h>
 #include <sutils/Atomic.h>
 #include <sutils/Logger.h>
+
+
 #ifndef __unused
+#if defined(WIN32)
+#define __unused 
+#else
 #define __unused __attribute__((__unused__))
+#endif
 #endif
 
 #ifdef LOG_TAG
@@ -37,19 +43,9 @@
 
 #define LOG_TAG "RefBase"
 
-#ifdef DEBUG_ENABLE
-#define MY_LOGD(fmt, arg...)  //VLOGD(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#define MY_LOGE(fmt, arg...)  //VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#else
-#define MY_LOGD(fmt, arg...)  ((void)0)
-#define MY_LOGE(fmt, arg...)  //VLOGE(LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#endif
-
-#ifdef DEBUG_ENABLE
-#define MY_LOGD_IF(cond,fmt, arg...)  //VLOGD_IF(cond,LOG_TAG,fmt, ##arg)//MY_LOGD(fmt, ##arg)X
-#else
-#define MY_LOGD_IF(cond,fmt, arg...) ((void)0)
-#endif
+#define MY_LOGD(format, ...)  ((void)0)
+#define MY_LOGE(format, ...)  ((void)0)
+#define MY_LOGD_IF(cond,fmt, ...) ((void)0)
 
 // compile with refcounting debugging enabled
 #define DEBUG_REFS                      0
@@ -417,7 +413,5 @@ void RefBase::renameRefId(RefBase* ref, const void* old_id,
 	ref->mRefs->renameStrongRefId(old_id, new_id);
 	ref->mRefs->renameWeakRefId(old_id, new_id);
 }
-
 }
-;
 // namespace vmodule

@@ -64,11 +64,14 @@ struct threadDetails {
 	void* arg;
 };
 
-static __stdcall unsigned int threadIntermediary(void* vDetails) {
+static unsigned int threadIntermediary(void* vDetails) {
 	struct threadDetails* pDetails = (struct threadDetails*) vDetails;
 	int result;
 	result = (*(pDetails->func))(pDetails->arg);
-	delete pDetails;
+	if(pDetails !=	NULL) {
+		delete pDetails;
+		pDetails = NULL;
+	}
 	printf("thread exiting\n");
 	return (unsigned int) result;
 }

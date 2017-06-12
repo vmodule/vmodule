@@ -3,6 +3,7 @@
 #include <math.h>
 #include <functional>   // std::not1
 #include <algorithm>    // std::count_if
+#include <stdlib.h>
 #include <sutils/StringUtils.h>
 
 #if defined(TARGET_WINDOWS)
@@ -10,6 +11,20 @@
 #endif
 
 namespace vmodule {
+
+#if defined(TARGET_WINDOWS) && defined(WIN32)
+
+#ifdef max
+#undef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#undef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+#endif
+
 #define FORMAT_BLOCK_SIZE 512 // # of bytes for initial allocation for printf
 static wchar_t unicode_lowers[] = { (wchar_t) 0x0061, (wchar_t) 0x0062,
 		(wchar_t) 0x0063, (wchar_t) 0x0064, (wchar_t) 0x0065, (wchar_t) 0x0066,
@@ -551,7 +566,11 @@ std::string StringUtils::FormatV(const char *fmt, va_list args) {
 }
 
 std::string StringUtils::Left(const std::string &str, size_t count) {
+#if defined(TARGET_WINDOWS) && defined(WIN32)	
+	count = max((size_t) 0, min(count, str.size()));
+#else
 	count = std::max((size_t) 0, std::min(count, str.size()));
+#endif
 	return str.substr(0, count);
 }
 
@@ -569,7 +588,11 @@ std::string StringUtils::Mid(const std::string &str, size_t first,
 }
 
 std::string StringUtils::Right(const std::string &str, size_t count) {
+#if defined(TARGET_WINDOWS) && defined(WIN32)	
+	count = max((size_t) 0, min(count, str.size()));
+#else
 	count = std::max((size_t) 0, std::min(count, str.size()));
+#endif	
 	return str.substr(str.size() - count);
 }
 

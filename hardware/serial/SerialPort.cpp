@@ -14,15 +14,14 @@
 #undef LOG_TAG
 #endif
 
-#define _DEBUG 1
 #define LOG_TAG "CSerialPort"
 
-#ifdef _DEBUG
-#define MY_LOGD(fmt, arg...)  VLOGD(LOG_TAG,fmt, ##arg)
-#define MY_LOGE(fmt, arg...)  VLOGE(LOG_TAG,fmt, ##arg)
+#ifdef DEBUG_ENABLE
+#define MY_LOGD(format,...) 	vmodule::Logger::Log(VMODULE_LOG_DEBUG,LOG_TAG,format,##__VA_ARGS__)
+#define MY_LOGE(format,...) 	vmodule::Logger::Log(VMODULE_LOG_ERROR,LOG_TAG,format,##__VA_ARGS__)
 #else
-#define MY_LOGD(fmt, arg...)  ((void)0)
-#define MY_LOGE(fmt, arg...)  ((void)0)
+#define MY_LOGD(format, ...)  ((void)0)
+#define MY_LOGE(format, ...)  ((void)0)
 #endif
 
 namespace vmodule {
@@ -99,19 +98,116 @@ status_t CSerialPort::InitPort(const char* name, int baud,
 
 #else
 	struct termios tio;
-	if (tcgetattr(m_file, &tio))
 	memset(&tio, 0, sizeof(tio));
+	if (tcgetattr(m_file, &tio) != 0) {
+		memset(&tio, 0, sizeof(tio));
+		MY_LOGE("get termios Error");
+	}
+	//设置波特率
+	cfsetispeed(&tio, baud); 
+	//修改控制模式，保证程序不会占用串口
+	tio.c_cflag |= CLOCAL;
+	//修改控制模式，使得能够从串口中读取输入数据
+	tio.c_cflag |= CREAD;
+	
+	//tio.c_cflag |= baud
+#if 0
+	//设置数据流控制
+	switch(flow_ctrl)
+	{
 
-	tio.c_cflag = baud | CS8 | CLOCAL | CREAD;
-	// Disable output processing, including messing with end-of-line characters.
-	tio.c_oflag &= ~OPOST;
+		case 0 : //不使用流控制
+		tio.c_cflag &= ~CRTSCTS;
+		break;
+
+		case 1 ://使用硬件流控制
+		tio.c_cflag |= CRTSCTS;
+		break;
+		case 2 ://使用软件流控制
+		tio.c_cflag |= IXON | IXOFF | IXANY;
+		break;
+	}
+#endif
+	tio.c_cflag &= ~CRTSCTS;//default we are nor using hardware control..
+	tio.c_cflag |= IXON | IXOFF | IXANY;
+	//设置数据位
+	tio.c_cflag &= ~CSIZE;//屏蔽其他标志位
+	switch (databits)
+	{
+		case 5 :
+			tio.c_cflag |= CS5;
+		break;
+		case 6 :
+			tio.c_cflag |= CS6;
+		break;
+		case 7 :
+			tio.c_cflag |= CS7;
+		break;
+		case 8:
+			tio.c_cflag |= CS8;
+		break;
+		default:
+		MY_LOGE("Unsupported data size/n");
+	}
+	//设置校验位
+	switch (parity)
+	{
+		case 'n':
+		case 'N': //无奇偶校验位。
+			tio.c_cflag &= ~PARENB;
+			tio.c_iflag &= ~INPCK;
+		break;
+		case 'o':
+		case 'O'://设置为奇校验
+			tio.c_cflag |= (PARODD | PARENB);
+			tio.c_iflag |= INPCK;
+		break;
+		case 'e':
+		case 'E'://设置为偶校验
+			tio.c_cflag |= PARENB;
+			tio.c_cflag &= ~PARODD;
+			tio.c_iflag |= INPCK;
+		break;
+		case 's':
+		case 'S'://设置为空格
+			tio.c_cflag &= ~PARENB;
+			tio.c_cflag &= ~CSTOPB;
+		break;
+		default:
+			MY_LOGE("Unsupported parity/n");
+			return INVALID_OPERATION;
+	}
+
+    // 设置停止位
+    switch (stopsbits)
+    {
+       case 1:
+    	   tio.c_cflag &= ~CSTOPB;
+       break;
+       case 2:
+    	   tio.c_cflag |= CSTOPB;
+       break;
+       default:
+    	   MY_LOGE("Unsupported stop bits/n");
+    	   return INVALID_OPERATION;
+    }
+
+	//修改输出模式，原始数据输出
+    tio.c_oflag &= ~OPOST;
 	tio.c_iflag = IGNPAR;
 	tio.c_lflag = 0; /* turn of CANON, ECHO*, etc */
-	/* no timeout but request at least one character per read */
-	tio.c_cc[VTIME] = 0;
-	tio.c_cc[VMIN] = 1;
-	tcsetattr(m_file, TCSANOW, &tio);
-	tcflush(m_file, TCIFLUSH);
+	//设置等待时间和最小接收字符
+    tio.c_cc[VTIME] = 1; /* 读取一个字符等待1*(1/10)s */
+	tio.c_cc[VMIN] = 1; /* 读取字符的最少个数为1 */
+
+	//如果发生数据溢出，接收数据，但是不再读取
+	tcflush(m_file,TCIFLUSH);
+
+	//激活配置 (将修改后的termios数据设置到串口中）
+	if (tcsetattr(m_file,TCSANOW,&tio) != 0) {
+		MY_LOGE("com set error!/n");
+		return INVALID_OPERATION;
+	}
 
 	FD_ZERO(&readset);
 	if(m_file >= 0)
@@ -153,16 +249,19 @@ status_t CSerialPort::openPort(const char* name) {
 	}
 	return OK;
 #else
+	MY_LOGD("device name:%s",name);
 	m_file = open(name,O_RDWR|O_NOCTTY|O_NDELAY);
 	if(m_file <= -1) {
 		MY_LOGE("open Serial client Error..");
 		return INVALID_OPERATION;
 	}
+	int flag = fcntl(m_file, F_GETFL, 0);
+	int err = fcntl(m_file, F_SETFL, flag | O_NONBLOCK);
 	return OK;
 #endif
 }
 
-status_t CSerialPort::ReadByte(unsigned char &byte) {
+status_t CSerialPort::ReadByte(u_int8_t &byte) {
 	int bResult = -1;
 	if (m_file == INVALID_HANDLE_VALUE)
 		return INVALID_OPERATION;
@@ -178,7 +277,7 @@ status_t CSerialPort::ReadByte(unsigned char &byte) {
 	}
 #else
 	bResult = read(m_file, &byte, 1);
-	if(bResult < 0) {
+	if (bResult != 1) {
 		MY_LOGE("read serail Error");
 		return INVALID_OPERATION;
 	}
@@ -225,6 +324,8 @@ int CSerialPort::GetTotalBytes() {
 CSerialPortReadTask::CSerialPortReadTask(wp<CSerialPort> client) :
 		CThread(), mClient(client) {
 	MY_LOGD("%s", __FUNCTION__);
+	memset(buffer, 0, 1024);
+	len = 0;
 }
 
 CSerialPortReadTask::~CSerialPortReadTask() {
@@ -243,13 +344,15 @@ bool CSerialPortReadTask::threadLoop() {
 			UINT BytesInQue = client->GetTotalBytes();
 			if (BytesInQue == 0)
 				return true;
-			unsigned char cRecved = 0x00;
+			len = 0;
+			memset(buffer, 0, 1024);
 			do {
-				if (client->ReadByte(cRecved) == OK) {
-					MY_LOGD("cRecved=0x%02x", cRecved & 0xff);
+				if (client->ReadByte(buffer[len]) == OK) {
+					MY_LOGD("buffer[%d]=0x%02x", len,buffer[len] & 0xff);
+					len++;
 				}
-
 			} while (--BytesInQue);
+			len++;
 		}
 	} else {
 		DWORD dwRet = GetLastError();
@@ -266,23 +369,35 @@ bool CSerialPortReadTask::threadLoop() {
 #else
 bool CSerialPortReadTask::threadLoop() {
 	sp<CSerialPort> client = mClient.promote();
-	if (client == 0 || client->m_file < 0)
+	if (client == 0 || client->m_file < 0) {
+		MY_LOGE("mClient Error");
 		return false;
-	unsigned char buffer[256];
-	int result;
+	}
+	status_t result;
 	result = select(client->m_file,
-			&client->readset, 0, 0, &client->time_out);
-	if(result == -1 && errno==EINTR)
+			&client->readset, 0, 0, /*&client->time_out*/NULL);
+	if(result == -1 && errno==EINTR) {
+		MY_LOGE("select Error(%d)",EINTR);
 		return true;
-	else if (result == 0) //time out
+	} else if (result == 0) {
+		MY_LOGE("select Error TimeOut");
 		return true;
+	}
 
 	if(client->m_file >=0 &&
 			FD_ISSET(client->m_file, &client->readset)) {
-		result = read(client->m_file, buffer, 256);
-		if(result > 0 ) {
-			//todo...
-		}
+		MY_LOGD("start read data from serial");
+		len = 0;
+		memset(buffer, 0, 1024);
+		result = INVALID_OPERATION;
+		do {
+			result = client->ReadByte(buffer[len]);
+			if (result == OK) {
+				MY_LOGD("buffer[%d]=0x%02x",len,buffer[len] & 0xff);
+				len++;
+			}
+		}while (result == OK);
+		len++;
 	}
 	return true;
 }
@@ -302,7 +417,7 @@ bool CSerialPortWriteTask::threadLoop() {
 	sp<CSerialPort> client = mClient.promote();
 	if (client == 0)
 		return false;
-	MY_LOGD("start %s:", __func__);
+	MY_LOGD("start %s:", __FUNCTION__);
 	MQUEUE_ITEM *item = mBlockingQueue.DeQueue();
 	return true;
 }

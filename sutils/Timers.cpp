@@ -20,12 +20,12 @@
 #include <sutils/Timers.h>
 
 #include <limits.h>
-#include <sys/time.h>
 #include <time.h>
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
+#else
+#include <sys/time.h>
 #endif
-
 
 #if defined(TARGET_ANDROID)
 nsecs_t systemTime(int clock)
@@ -43,6 +43,29 @@ nsecs_t systemTime(int clock)
 	return nsecs_t(t.tv_sec)*1000000000LL + t.tv_nsec;
 }
 #else
+
+
+#if defined(WIN32) && defined(TARGET_WINDOWS) //for minigw32 not using
+static int gettimeofday(struct timeval *tp, void *tzp)
+{
+	time_t clock;
+	struct tm tm;
+	SYSTEMTIME wtm;
+	GetLocalTime(&wtm);
+	tm.tm_year = wtm.wYear - 1900;
+	tm.tm_mon = wtm.wMonth - 1;
+	tm.tm_mday = wtm.wDay;
+	tm.tm_hour = wtm.wHour;
+	tm.tm_min = wtm.wMinute;
+	tm.tm_sec = wtm.wSecond;
+	tm.tm_isdst = -1;
+	clock = mktime(&tm);
+	tp->tv_sec = clock;
+	tp->tv_usec = wtm.wMilliseconds * 1000;
+	return (0);
+}
+#endif
+
 nsecs_t systemTime(int /*clock*/) {
 	// Clock support varies widely across hosts. Mac OS doesn't support
 	// posix clocks, older glibcs don't support CLOCK_BOOTTIME and Windows
