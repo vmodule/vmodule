@@ -19,7 +19,7 @@
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
 #endif
-//#define USE_DEBUG_VIEW 1
+#define USE_DEBUG_VIEW 1
 namespace vmodule {
 #if !defined(TARGET_WINDOWS)
 LoggerThread::LoggerThread() :
