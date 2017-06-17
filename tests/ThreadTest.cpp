@@ -7,13 +7,13 @@
 //============================================================================
 
 #include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 #include <sutils/Logger.h>
 #include <sutils/RefBase.h>
 #include <sutils/Thread.h>
 #include <sutils/Timers.h>
-#include <stdlib.h>
-#include <stdio.h>
-
+#include <vmodule/vmodule.h>
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
@@ -75,10 +75,8 @@ bool ThreadTest2::threadLoop() {
 	return true;
 }
 
-
-int ThreadTest_main() {
-//int main() {	
-	//vmodule::Logger::Init("/home/jeffrey/workSpace/workApp/vmodule/log/");
+int main(int argc, char **argv) {
+	vmodue_init();
 	sp<ThreadTest> mThreadTest1;
 	sp<ThreadTest2> mThreadTest2;
 	std::string threadName1("ThreadTest1");

@@ -7,10 +7,11 @@
 //============================================================================
 
 #include <iostream>
-#include <sutils/Logger.h>
-#include <sutils/RefBase.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sutils/Logger.h>
+#include <sutils/RefBase.h>
+#include <vmodule/vmodule.h>
 
 #ifdef LOG_TAG
 #undef LOG_TAG
@@ -59,10 +60,8 @@ void StrongPointerTest::onLastWeakRef(const void* id) {
 	MY_LOGD("enter %s", __FUNCTION__);
 }
 
-
-int StrongPointerTest_main() {
-//int main() {	
-	//vmodule::Logger::Init("/home/jeffrey/workSpace/workApp/vmodule/log/");
+int main(int argc, char **argv) {
+	vmodue_init();
 	sp<StrongPointerTest> test1 = new StrongPointerTest();
 	MY_LOGD("test1 getStrongCount = %d",test1->getStrongCount());
     sp<StrongPointerTest> strong(test1);
@@ -78,5 +77,6 @@ int StrongPointerTest_main() {
 	MY_LOGD("test1 getStrongCount = %d",test1->getStrongCount());
 	MY_LOGD("========================");
 	test1.clear();//it will enter onLastStrongRef then enter ~StrongPointerTest
+	while(true);
 	return 0;
 }

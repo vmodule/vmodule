@@ -19,6 +19,11 @@
 #if defined(TARGET_WINDOWS)
 #include <windows.h>
 #endif
+
+#if defined(TARGET_ANDROID)
+#include <android/log.h>
+#endif
+
 #define USE_DEBUG_VIEW 1
 namespace vmodule {
 #if !defined(TARGET_WINDOWS)
@@ -97,6 +102,10 @@ int LoggerThread::android_printf(int logLevel, const char *tag, const char *msg,
 		__android_log_vprint(ANDROID_LOG_ERROR, tag, msg, argptr);
 		result = -1;
 		break;
+		case VMODULE_LOG_VERBOSE:
+		__android_log_vprint(ANDROID_LOG_VERBOSE, tag, msg, argptr);
+		result = 0;
+		break;		
 		default:
 		__android_log_vprint(ANDROID_LOG_VERBOSE, tag, msg, argptr);
 		result = 0;
@@ -110,7 +119,7 @@ void LoggerThread::PrintDebugString(const std::string &debugString) {
 	int tagIndex = debugString.find(":");
 	std::string tag = debugString.substr(0,tagIndex);
 	std::string logInfo = debugString.substr(tagIndex + 1);
-	android_printf(Logger::GetLogLevel(),tag.c_str(),logInfo.c_str());
+	android_printf(VMODULE_LOG_VERBOSE,tag.c_str(),logInfo.c_str());
 #elif defined(TARGET_POSIX)
 	printf("%s\n",debugString.c_str());
 #endif

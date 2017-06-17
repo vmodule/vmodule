@@ -28,18 +28,6 @@ extern "C" {
 #define VMODULE_API
 #endif
 
-
-// This class is exported from the vmodule.dll
-class VMODULE_API Cvmodule {
-public:
-	Cvmodule(void);
-	// TODO: add your methods here.
-};
-
-extern VMODULE_API int nvmodule;
-
-VMODULE_API int fnvmodule(void);
-
 /*extern*/ VMODULE_API void vmodue_init();
 
 #ifdef __cplusplus

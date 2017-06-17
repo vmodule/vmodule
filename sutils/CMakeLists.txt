@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.4.1)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 set(LIB_SUTILS_SRC
     Condition.cpp 
@@ -16,9 +15,22 @@ set(LIB_SUTILS_SRC
     VmHeap.cpp
     VmQueue.cpp
     AutoBuffer.cpp
-    FileUtils.cpp)    
+    FileUtils.cpp)
+
+if(BUILD_SHARED_LIBS)    
 add_library(sutils SHARED ${LIB_SUTILS_SRC})
-target_link_libraries(sutils
+else()
+add_library(sutils STATIC ${LIB_SUTILS_SRC})
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+target_link_libraries(
+    sutils 
     pthread)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/output/libs)
-#set_target_properties(sutils_static PROPERTIES OUTPUT_NAME "sutils")
+elseif(CMAKE_SYSTEM_NAME STREQUAL Android)
+target_link_libraries(
+    sutils 
+    android
+    log)
+else()
+endif()

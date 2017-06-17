@@ -144,7 +144,7 @@ int Logger::GetLogLevel() {
 
 bool Logger::IsLogLevelLogged(int loglevel) {
 
-#if defined(DEBUG_ENABLE) || defined(PROFILE)
+#if defined(_DEBUG) || defined(PROFILE)
 	return true;
 #else
 	if (s_globals.m_logLevel >= VMODULE_LOG_DEBUG)

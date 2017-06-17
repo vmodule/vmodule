@@ -17,7 +17,7 @@ typedef void FILEWRAP;
 
 typedef enum vmodule_LogPriority {
 	VMODULE_LOG_UNKNOWN = 0,
-	VMODULE_LOG_DEFAULT, /* only for SetMinPriority() */
+	VMODULE_LOG_DEFAULT, 
 	VMODULE_LOG_VERBOSE,
 	VMODULE_LOG_DEBUG,
 	VMODULE_LOG_INFO,
