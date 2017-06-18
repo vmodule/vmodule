@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_LOGGERTHREAD_H_
-#define VMODULE_LOGGERTHREAD_H_
+#ifndef VMODULE_SUTILS_LOGGERTHREAD_H_
+#define VMODULE_SUTILS_LOGGERTHREAD_H_
 #include <stdio.h>
 #include <string>
 #include <sutils/VmBlockingQueue.h>

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_REF_BASE_H
-#define VMODULE_REF_BASE_H
+#ifndef VMODULE_SUTILS_REF_BASE_H
+#define VMODULE_SUTILS_REF_BASE_H
 
 #include <stdint.h>
 #include <sys/types.h>

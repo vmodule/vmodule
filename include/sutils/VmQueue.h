@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_MQUEUE_H_
-#define VMODULE_MQUEUE_H_
+#ifndef VMODULE_SUTILS_MQUEUE_H_
+#define VMODULE_SUTILS_MQUEUE_H_
 
 namespace vmodule {
 /**

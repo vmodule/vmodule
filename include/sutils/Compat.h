@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_COMPAT_H
-#define VMODULE_COMPAT_H
+#ifndef VMODULE_SUTILS_COMPAT_H
+#define VMODULE_SUTILS_COMPAT_H
 
 
 #if !defined(TARGET_WINDOWS)

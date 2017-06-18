@@ -17,8 +17,8 @@
 //
 // Timer functions.
 //
-#ifndef VMODULE_TIMERS_H
-#define VMODULE_TIMERS_H
+#ifndef VMODULE_SUTILS_TIMERS_H
+#define VMODULE_SUTILS_TIMERS_H
 
 #include <stdint.h>
 #include <sys/types.h>

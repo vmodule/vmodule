@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_TYPE_HELPERS_H
-#define VMODULE_TYPE_HELPERS_H
+#ifndef VMODULE_SUTILS_TYPE_HELPERS_H
+#define VMODULE_SUTILS_TYPE_HELPERS_H
 
 #include <new>
 #include <stdint.h>

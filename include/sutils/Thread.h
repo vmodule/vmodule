@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_THREAD_H
-#define VMODULE_THREAD_H
+#ifndef VMODULE_SUTILS_THREAD_H
+#define VMODULE_SUTILS_THREAD_H
 
 #include <string>
 #include <stdint.h>

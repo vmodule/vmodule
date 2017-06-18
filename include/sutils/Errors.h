@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_ERRORS_H_
-#define VMODULE_ERRORS_H_
+#ifndef VMODULE_SUTILS_ERRORS_H_
+#define VMODULE_SUTILS_ERRORS_H_
 
 #include <sys/types.h>
 #include <errno.h>

@@ -1,5 +1,5 @@
-#ifndef VMODULE_THREADIMPL_H_
-#define VMODULE_THREADIMPL_H_
+#ifndef VMODULE_SUTILS_THREADIMPL_H_
+#define VMODULE_SUTILS_THREADIMPL_H_
 
 #include <stdint.h>
 #include <sys/types.h>

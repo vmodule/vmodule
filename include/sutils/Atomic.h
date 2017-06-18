@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_VUTILS_ATOMIC_H
-#define VMODULE_VUTILS_ATOMIC_H
+#ifndef VMODULE_SUTILS_ATOMIC_H
+#define VMODULE_SUTILS_ATOMIC_H
 
 #include <stdint.h>
 #include <sys/types.h>

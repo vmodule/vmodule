@@ -14,6 +14,7 @@ set(LIB_SUTILS_SRC
     VmBlockingQueue.cpp
     VmHeap.cpp
     VmQueue.cpp
+    Queue.cpp
     AutoBuffer.cpp
     FileUtils.cpp)
 

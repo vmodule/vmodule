@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_BLOCKING_QUEUE_H_
-#define VMODULE_BLOCKING_QUEUE_H_
+#ifndef VMODULE_SUTILS_BLOCKING_QUEUE_H_
+#define VMODULE_SUTILS_BLOCKING_QUEUE_H_
 #include <sutils/Condition.h>
 #include <sutils/Mutex.h>
 #include <sutils/VmQueue.h>

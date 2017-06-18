@@ -9,21 +9,21 @@ add_executable(strongpointerTest ${STRONG_POINTER_TEST_SRC})
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
 target_link_libraries(
     threadtest
-    vmodule
+    sutils
     pthread)
 target_link_libraries(
     strongpointerTest
-    vmodule
+    sutils
     pthread)    
 elseif(CMAKE_SYSTEM_NAME STREQUAL Android)
 target_link_libraries(
     threadtest
-    vmodule
+    sutils
     android
     log)
 target_link_libraries(
     strongpointerTest
-    vmodule
+    sutils
     android
     log)    
 else()

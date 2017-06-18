@@ -1,12 +1,12 @@
 /*
  * AutoBuffer.h
  *
- *  Created on: 2017Äê5ÔÂ22ÈÕ
+ *  Created on: 2017ï¿½ï¿½5ï¿½ï¿½22ï¿½ï¿½
  *      Author: sucx
  */
 
-#ifndef VMODULE_AUTOBUFFER_H_
-#define VMODULE_AUTOBUFFER_H_
+#ifndef VMODULE_SUTILS_AUTOBUFFER_H_
+#define VMODULE_SUTILS_AUTOBUFFER_H_
 #include <stddef.h> // for size_t
 namespace vmodule {
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_MUTEX_H
-#define VMODULE_MUTEX_H
+#ifndef VMODULE_SUTILS_MUTEX_H
+#define VMODULE_SUTILS_MUTEX_H
 
 #include <stdint.h>
 #include <sys/types.h>

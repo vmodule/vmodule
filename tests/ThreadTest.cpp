@@ -13,7 +13,7 @@
 #include <sutils/RefBase.h>
 #include <sutils/Thread.h>
 #include <sutils/Timers.h>
-#include <vmodule/vmodule.h>
+#include <sutils/FileUtils.h>
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
@@ -76,8 +76,19 @@ bool ThreadTest2::threadLoop() {
 }
 
 int main(int argc, char **argv) {
-	vmodue_init();
-	sp<ThreadTest> mThreadTest1;
+	char* pCurrDir = new char[260];
+	GetCurrentDirectory(260, pCurrDir);
+	std::string pCurrDirString(pCurrDir);
+#if defined(TARGET_WINDOWS)
+	pCurrDirString.append("\\");
+#else
+	pCurrDirString.append("/");
+#endif
+	vmodule::Logger::Init(pCurrDirString);
+	if (pCurrDir != NULL) {
+		delete pCurrDir;
+		pCurrDir = NULL;
+	}	sp<ThreadTest> mThreadTest1;
 	sp<ThreadTest2> mThreadTest2;
 	std::string threadName1("ThreadTest1");
 	mThreadTest1 = new ThreadTest();

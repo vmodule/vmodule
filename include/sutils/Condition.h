@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_CONDITION_H
-#define VMODULE_CONDITION_H
+#ifndef VMODULE_SUTILS_CONDITION_H
+#define VMODULE_SUTILS_CONDITION_H
 
 #include <stdint.h>
 #include <sys/types.h>

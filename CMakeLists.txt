@@ -80,11 +80,26 @@ if (CMAKE_SYSTEM_NAME STREQUAL Linux)
 target_link_libraries(
     vmoduleMain 
     vmodule
+    event
     pthread)
 elseif(CMAKE_SYSTEM_NAME STREQUAL Android)
+#if the library not in system lib you must using flowing search
+#if (BUILD_SHARED_LIBS)
+#find_library(
+#	event_lib 
+#	libevent-2.1.so 
+#	${CMAKE_SOURCE_DIR}/libs/android/)
+#else()
+#find_library(
+#	event_lib 
+#	libevent.a
+#	${CMAKE_SOURCE_DIR}/libs/android/)
+#endif()
+
 target_link_libraries(
     vmoduleMain 
     vmodule
+    event
     android
     log)
 else()

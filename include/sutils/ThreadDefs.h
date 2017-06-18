@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_THREAD_DEFS_H
-#define VMODULE_THREAD_DEFS_H
+#ifndef VMODULE_SUTILS_THREAD_DEFS_H
+#define VMODULE_SUTILS_THREAD_DEFS_H
 
 #include <stdint.h>
 #include <sys/types.h>

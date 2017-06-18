@@ -23,6 +23,20 @@ https://cmake.org/cmake/help/v3.8/manual/cmake-toolchains.7.html
      -DCMAKE_ANDROID_NDK=/home/jeffrey/ideTools/android-ndk-r14b \
      -DCMAKE_ANDROID_STL_TYPE=gnustl_static \
      -DCMAKE_INSTALL_PREFIX=../output
+     
+#How to compile libevent and install the lib to ndk path      
+    $cmake ../ \
+     -DCMAKE_SYSTEM_NAME=Android \
+     -DCMAKE_SYSTEM_VERSION=24 \
+     -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+     -DCMAKE_ANDROID_NDK=/home/jeffrey/ideTools/android-ndk-r14b \
+     -DCMAKE_ANDROID_STL_TYPE=gnustl_static \
+     -DEVENT__HAVE_WAITPID_WITH_WNOWAIT=OFF \
+     -DEVENT__HAVE_GETIFADDRS=OFF \
+     -DEVENT__HAVE_ARC4RANDOM=OFF \
+     -DEVENT__BUILD_SHARED_LIBRARIES=ON \
+     -DCMAKE_INSTALL_PREFIX=/home/jeffrey/ideTools/android-ndk-r14b/platforms/android-24/arch-arm64/usr     
+     
 
 #windows virtual studuio config
 # please create enpty project

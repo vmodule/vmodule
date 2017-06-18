@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMHEAP_H_
-#define VMHEAP_H_
+#ifndef VMODULE_SUTILS_VMHEAP_H_
+#define VMODULE_SUTILS_VMHEAP_H_
 
 namespace vmodule {
 

@@ -7,7 +7,9 @@
 
 #ifndef VMODULE_H_
 #define VMODULE_H_
-
+#include <event.h>
+#include <sutils/SingletonHelper.h>
+#include <sutils/Timers.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,13 +30,33 @@ extern "C" {
 #define VMODULE_API
 #endif
 
+#define ITEM_UPDATE_INTERVAL 60
+// This class is exported from the vmodule.dll
+class VMODULE_API Vmodule {
+public:
+	Vmodule();
+	~Vmodule();
+	// TODO: add your methods here.
+	event_base *getMainEventBase();
+	static void Initialize();
+	static void clock_handler(const int fd, 
+		const short which, void *arg);
+	time_t getProcessStarted(){return process_started;}
+protected:
+	static event_base *main_base;
+	static event clockevent;		
+	volatile nsecs_t current_time;
+	time_t process_started;
+	
+};
+
 /*extern*/ VMODULE_API void vmodue_init();
+
+VMODULE_GLOBAL_REF(Vmodule, g_vmodule);
+#define g_vmodule VMODULE_GLOBAL_USE(Vmodule)
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
 #endif /* VMODULE_H_ */
-
-
 

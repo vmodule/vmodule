@@ -1,5 +1,5 @@
-#ifndef VMODULE_SYS_TYPES_H
-#define VMODULE_SYS_TYPES_H
+#ifndef VMODULE_SUTILS_SYS_TYPES_H
+#define VMODULE_SUTILS_SYS_TYPES_H
 
 #include <sys/types.h>
 

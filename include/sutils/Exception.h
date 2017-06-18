@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_EXCEPTION_H_
-#define VMODULE_EXCEPTION_H_
+#ifndef VMODULE_SUTILS_EXCEPTION_H_
+#define VMODULE_SUTILS_EXCEPTION_H_
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

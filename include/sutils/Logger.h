@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_LOGGER_H_
-#define VMODULE_LOGGER_H_
+#ifndef VMODULE_SUTILS_LOGGER_H_
+#define VMODULE_SUTILS_LOGGER_H_
 #include <memory>
 #include <sutils/Mutex.h>
 #include <sutils/SingletonHelper.h>

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <sutils/Logger.h>
 #include <sutils/RefBase.h>
-#include <vmodule/vmodule.h>
+#include <sutils/FileUtils.h>
 
 #ifdef LOG_TAG
 #undef LOG_TAG
@@ -61,7 +61,19 @@ void StrongPointerTest::onLastWeakRef(const void* id) {
 }
 
 int main(int argc, char **argv) {
-	vmodue_init();
+	char* pCurrDir = new char[260];
+	GetCurrentDirectory(260, pCurrDir);
+	std::string pCurrDirString(pCurrDir);
+#if defined(TARGET_WINDOWS)
+	pCurrDirString.append("\\");
+#else
+	pCurrDirString.append("/");
+#endif
+	vmodule::Logger::Init(pCurrDirString);
+	if (pCurrDir != NULL) {
+		delete pCurrDir;
+		pCurrDir = NULL;
+	}
 	sp<StrongPointerTest> test1 = new StrongPointerTest();
 	MY_LOGD("test1 getStrongCount = %d",test1->getStrongCount());
     sp<StrongPointerTest> strong(test1);

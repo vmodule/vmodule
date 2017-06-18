@@ -5,8 +5,8 @@
  *      Author: jeffrey
  */
 
-#ifndef VMODULE_ILOGGER_H_
-#define VMODULE_ILOGGER_H_
+#ifndef VMODULE_SUTILS_ILOGGER_H_
+#define VMODULE_SUTILS_ILOGGER_H_
 #include <stdio.h>
 
 #if !defined(TARGET_WINDOWS)

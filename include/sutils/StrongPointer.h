@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef VMODULE_STRONG_POINTER_H
-#define VMODULE_STRONG_POINTER_H
+#ifndef VMODULE_SUTILS_STRONG_POINTER_H
+#define VMODULE_SUTILS_STRONG_POINTER_H
 
 #include <sutils/Atomic.h>
 #include <stdint.h>
