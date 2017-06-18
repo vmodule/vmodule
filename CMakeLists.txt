@@ -7,8 +7,8 @@ option(BUILD_SHARED_LIBS "build as shared library" ON)
 option(BUILD_STATIC_LIBS "build as static library" OFF)
 option(BUILD_TESTS "build vmodule test" ON)
 option(BUILD_SUTILS "build vmodule test" ON)
-option(BUILD_NETWORK "Build network programs" OFF)
 option(BUILD_HARDWARE "Build hareware programs" ON)
+option(BUILD_CSOCKET "Build socket programs" ON)
 
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
 add_definitions("-DTARGET_POSIX")
@@ -42,9 +42,9 @@ if(BUILD_HARDWARE)
 add_subdirectory(hardware)
 endif(BUILD_HARDWARE)
 
-if(BUILD_NETWORK)
-add_subdirectory(network)
-endif(BUILD_NETWORK)
+if(BUILD_CSOCKET)
+add_subdirectory(socket)
+endif(BUILD_CSOCKET)
 
 #for libvmodule.
 include_directories(${PROJECT_SOURCE_DIR}/include)

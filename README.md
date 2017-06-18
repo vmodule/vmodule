@@ -16,6 +16,8 @@ https://cmake.org/cmake/help/v3.8/manual/cmake-toolchains.7.html
 
 #how to compile vmodule to android
 #if the ndk path:/home/jeffrey/ideTools/android-ndk-r14b
+    $mkdir build
+    $cd build 
     $cmake ../ \
      -DCMAKE_SYSTEM_NAME=Android \
      -DCMAKE_SYSTEM_VERSION=24 \
@@ -25,6 +27,8 @@ https://cmake.org/cmake/help/v3.8/manual/cmake-toolchains.7.html
      -DCMAKE_INSTALL_PREFIX=../output
      
 #How to compile libevent and install the lib to ndk path      
+    $mkdir build
+    $cd build 
     $cmake ../ \
      -DCMAKE_SYSTEM_NAME=Android \
      -DCMAKE_SYSTEM_VERSION=24 \
