@@ -64,9 +64,6 @@ int main(int argc, char **argv)
         exit(1);
     }
     g_vmodule.Initialize();
-	
-    /* initialise clock event */
-    g_vmodule.clock_handler(0, 0, 0);
 
     //grow our pool of file descriptors to the max!
     struct rlimit rl;
@@ -79,7 +76,10 @@ int main(int argc, char **argv)
 
     getrlimit(RLIMIT_NOFILE,  &rl);
     MY_LOGD("current open file limit =%ld\n", rl.rlim_cur);
-    MY_LOGD("current open file max =%ld\n", rl.rlim_max);	
+    MY_LOGD("current open file max =%ld\n", rl.rlim_max);		
+    /* initialise clock event */
+    g_vmodule.clock_handler(0, 0, 0);
+
     /* enter the event loop */
     if (event_base_loop(g_vmodule.getMainEventBase(),
     		0) != 0) {
