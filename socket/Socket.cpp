@@ -7,12 +7,6 @@
 
 #include <socket/Socket.h>
 #include <sutils/Logger.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <assert.h>
-
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
@@ -43,18 +37,6 @@ void CSocket::ErrorLog(const char *s) {
 	MY_LOGE("%s",s);
 }
 
-int CSocket::Accept(int fd, struct sockaddr *sa, socklen_t *salenptr) {
-	int n;
-
-	again: if ((n = accept(fd, sa, salenptr)) < 0) {
-		if ((errno == ECONNABORTED) || (errno == EINTR))
-			goto again;
-		else
-			ErrorLog("accept error");
-	}
-	return n;
-}
-
 int CSocket::Bind(int fd, const struct sockaddr *sa, socklen_t salen) {
 	int n;
 
@@ -70,15 +52,6 @@ int CSocket::Connect(int fd, const struct sockaddr *sa, socklen_t salen) {
 	if (n < 0) {
 		ErrorLog("connect error");
 	}
-
-	return n;
-}
-
-int CSocket::Listen(int fd, int backlog) {
-	int n;
-
-	if ((n = listen(fd, backlog)) < 0)
-		ErrorLog("listen error");
 
 	return n;
 }

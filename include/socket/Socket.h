@@ -15,6 +15,11 @@
 #include <netinet/in.h>
 #endif
 #include <sys/socket.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <assert.h>
 namespace vmodule {
 
 class CSocket: virtual public RefBase {
@@ -23,10 +28,8 @@ public:
 	virtual ~CSocket();
 	int Close(int fd);
 	void ErrorLog(const char *s);
-	int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
 	int Bind(int fd, const struct sockaddr *sa, socklen_t salen);
 	int Connect(int fd, const struct sockaddr *sa, socklen_t salen);
-	int Listen(int fd, int backlog);
 	int Socket(int family, int type, int protocol);
 	void NoDelay(int fd);
 	void KeepAlive(int fd);
