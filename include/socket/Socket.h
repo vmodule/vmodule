@@ -22,6 +22,17 @@
 #include <assert.h>
 namespace vmodule {
 
+class CSocket;
+class CSocketTask {
+public:	
+	CSocketTask(){};
+	virtual ~SocketTask(){};	
+private:	
+    int    sfd;
+	/* Used for generating a list of SocketTask structures */
+	CSocketTask   *next;
+};
+
 class CSocket: virtual public RefBase {
 public:
 	CSocket();
@@ -39,6 +50,13 @@ public:
 	ssize_t Write(int fd, const void *ptr, size_t nbytes);
 	ssize_t Readn(int fd, void *vptr, size_t n);
 	ssize_t Writen(int fd, const void *vptr, size_t n);
+
+	//NewUdpSocket;
+	//NewTcpSocket;
+	//NewUnixSocket;
+	//Using class CSocketTask desciption one socket port..
+private:
+	//static CSocketTask *mListenTask;
 };
 
 } /* namespace vmodule */
