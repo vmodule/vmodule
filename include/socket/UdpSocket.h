@@ -15,7 +15,6 @@ class CUdpSocket: public vmodule::CSocket {
 public:
 	CUdpSocket();
 	virtual ~CUdpSocket();
-	int NewUdpSocket(int port, bool blocking = false) = 0;
 
 };
 

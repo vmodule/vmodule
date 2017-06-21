@@ -1,6 +1,7 @@
 include_directories(${PROJECT_SOURCE_DIR}/include)
 set(SOCKET_SRC 
 	Socket.cpp
+	SocketTask.cpp
 	TcpSocket.cpp
 	UdpSocket.cpp)
 if(BUILD_SHARED_LIBS)    

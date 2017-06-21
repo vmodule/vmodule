@@ -18,6 +18,16 @@ CTcpSocket::~CTcpSocket() {
 	// TODO Auto-generated destructor stub
 }
 
+int CTcpSocket::Listen(int fd, int backlog) {
+	int n;
+
+	if ((n = listen(fd, backlog)) < 0)
+		sError("listen error");
+
+	return n;
+}
+
+
 int CTcpSocket::Accept(int fd, struct sockaddr *sa, socklen_t *salenptr) {
 	int n;
 	again: if ((n = accept(fd, sa, salenptr)) < 0) {
@@ -27,26 +37,6 @@ int CTcpSocket::Accept(int fd, struct sockaddr *sa, socklen_t *salenptr) {
 			sError("accept error");
 	}
 	return n;
-}
-
-int CTcpSocket::NewTcpSocket(int port, bool blocking) {
-	int sfd;
-	int flags;
-
-	if ((sfd = Socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1) {
-		return -1;
-	}
-	if (!blocking) {
-
-		if ((flags = fcntl(sfd, F_GETFL, 0)) < 0
-				|| fcntl(sfd, F_SETFL, flags | O_NONBLOCK) < 0) {
-			sError("setting O_NONBLOCK");
-			close(sfd);
-			return -1;
-		}
-	}
-
-	return sfd;
 }
 
 } /* namespace vmodule */

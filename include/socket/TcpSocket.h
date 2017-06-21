@@ -15,8 +15,8 @@ class CTcpSocket: public vmodule::CSocket {
 public:
 	CTcpSocket();
 	virtual ~CTcpSocket();
+	int Listen(int fd, int backlog);
 	int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
-	int NewTcpSocket(int port, bool blocking = false) = 0;
 };
 
 } /* namespace vmodule */
